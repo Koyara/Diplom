@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebApplication2.Data;
 
@@ -11,9 +12,11 @@ using WebApplication2.Data;
 namespace WebApplication2.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250211174129_scalekeyremove")]
+    partial class scalekeyremove
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -232,22 +235,11 @@ namespace WebApplication2.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ContributorID"));
 
-                    b.Property<DateOnly?>("BirthDate")
-                        .HasColumnType("date");
-
-                    b.Property<string>("CountryCode")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<string>("FullName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool?>("IsMale")
-                        .HasColumnType("bit");
-
                     b.HasKey("ContributorID");
-
-                    b.HasIndex("CountryCode");
 
                     b.ToTable("Contributor");
                 });
@@ -396,9 +388,8 @@ namespace WebApplication2.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ScaleId"));
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int?>("Name")
+                        .HasColumnType("int");
 
                     b.HasKey("ScaleId");
 
@@ -454,15 +445,6 @@ namespace WebApplication2.Data.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("WebApplication2.Models.Contributor", b =>
-                {
-                    b.HasOne("WebApplication2.Models.Country", "Country")
-                        .WithMany()
-                        .HasForeignKey("CountryCode");
-
-                    b.Navigation("Country");
                 });
 
             modelBuilder.Entity("WebApplication2.Models.Country", b =>

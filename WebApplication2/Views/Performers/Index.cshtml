@@ -13,19 +13,24 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.PerformerType)
+                @* @Html.DisplayNameFor(model => model.PerformerType) *@
+                <h3>Performer Type</h3>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Name)
+                @* @Html.DisplayNameFor(model => model.Name) *@
+                <h3>Name</h3>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Description)
+                @* @Html.DisplayNameFor(model => model.Description) *@
+                <h3>Description</h3>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.MainGenre)
+                @* @Html.DisplayNameFor(model => model.MainGenre) *@
+                <h3>Main Genre</h3>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.SecondaryGenre)
+                @* @Html.DisplayNameFor(model => model.SecondaryGenre) *@
+                <h3>Secondary Genre</h3>
             </th>
             <th></th>
         </tr>
@@ -34,7 +39,7 @@
 @foreach (var item in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.PerformerType.PerformerTypeID)
+                @Html.DisplayFor(modelItem => item.PerformerType.TypeName)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Name)
@@ -43,10 +48,10 @@
                 @Html.DisplayFor(modelItem => item.Description)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.MainGenre.GenreID)
+                @Html.DisplayFor(modelItem => item.MainGenre.GenreName)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.SecondaryGenre.GenreID)
+                @Html.DisplayFor(modelItem => item.SecondaryGenre.GenreName)
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.PerformerID">Edit</a> |

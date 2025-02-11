@@ -17,6 +17,7 @@ namespace WebApplication2.Data
         public DbSet<WebApplication2.Models.PerformerType> PerformerType { get; set; } = default!;
         public DbSet<WebApplication2.Models.Genre> Genre { get; set; } = default!;
 
+        public DbSet<WebApplication2.Models.ReleaseTrack> ReleaseTrack { get; set; } = default!;
         public DbSet<WebApplication2.Models.Performer> Performer { get; set; } = default!;
 
         public DbSet<WebApplication2.Models.Rondo> Rondo { get; set; } = default!;
