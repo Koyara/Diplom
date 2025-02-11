@@ -51,7 +51,18 @@ namespace WebApplication2.Controllers
         // GET: Performers/Create
         public IActionResult Create()
         {
-            ViewData["MainGenreID"] = new SelectList(_context.Genre, "GenreID", "GenreID");
+            var genres = _context.Genre
+                .Select(gn => new GenreViewModel
+                {
+                    GenreID = gn.GenreID,
+                    GenreName = gn.GenreName
+                }).ToList();
+            ViewBag.Genres = new SelectList(genres, "GenreID", "GenreName");
+            ViewBag.SecondaryGenre = new SelectList(genres, "GenreID", "GenreName");
+
+
+
+            //ViewData["MainGenreID"] = new SelectList(_context.Genre, "GenreID", "GenreID");
             //ViewData["PerformerTypeID"] = new SelectList(_context.PerformerType, "PerformerTypeID", "PerformerTypeID");
 
             var performerTypes = _context.PerformerType
@@ -91,6 +102,15 @@ namespace WebApplication2.Controllers
                 TypeName = pt.TypeName
             }).ToList();
 
+            var genres = _context.Genre
+                .Select(gn => new GenreViewModel
+                {
+                    GenreID = gn.GenreID,
+                    GenreName = gn.GenreName
+                }).ToList();
+
+            ViewBag.Genres = new SelectList(genres, "GenreID", "GenreName");
+
             ViewBag.PerformerTypes = new SelectList(performerTypes, "PerformerTypeID", "TypeName");
 
             ViewData["SecondaryGenreID"] = new SelectList(_context.Genre, "GenreID", "GenreID", performer.SecondaryGenreID);
@@ -111,8 +131,15 @@ namespace WebApplication2.Controllers
                 return NotFound();
             }
 
+            var genres = _context.Genre
+                .Select(gn => new GenreViewModel
+                {
+                    GenreID = gn.GenreID,
+                    GenreName = gn.GenreName
+                }).ToList();
 
-            
+            ViewBag.Genres = new SelectList(genres, "GenreID", "GenreName");
+
 
 
             ViewData["MainGenreID"] = new SelectList(_context.Genre, "GenreID", "GenreID", performer.MainGenreID);
