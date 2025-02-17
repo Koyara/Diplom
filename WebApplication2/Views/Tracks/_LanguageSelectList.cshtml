@@ -1,0 +1,7 @@
+﻿@model SelectList
+
+<option value="">Select Language</option>
+@foreach (var item in Model)
+{
+    <option value="@item.Value">@item.Text</option>
+}

@@ -19,6 +19,11 @@ namespace WebApplication2.Data
 
         public DbSet<WebApplication2.Models.ReleaseTrack> ReleaseTrack { get; set; } = default!;
         public DbSet<WebApplication2.Models.Performer> Performer { get; set; } = default!;
+        public DbSet<WebApplication2.Models.Track> Track {  get; set; } = default!;
+
+        public DbSet<WebApplication2.Models.Release> Release { get; set; } = default!;
+
+        public DbSet<WebApplication2.Models.ReleaseType> ReleaseType { get; set; } = default!;
 
         public DbSet<WebApplication2.Models.Rondo> Rondo { get; set; } = default!;
     }

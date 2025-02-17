@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebApplication2.Data;
 
@@ -11,9 +12,11 @@ using WebApplication2.Data;
 namespace WebApplication2.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250212100923_trynafix")]
+    partial class trynafix
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -352,45 +355,6 @@ namespace WebApplication2.Data.Migrations
                     b.ToTable("PerformerType");
                 });
 
-            modelBuilder.Entity("WebApplication2.Models.Release", b =>
-                {
-                    b.Property<int>("ReleaseID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ReleaseID"));
-
-                    b.Property<int?>("MainGenreCode")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("MainGenreGenreID")
-                        .HasColumnType("int");
-
-                    b.Property<byte[]>("ReleaseCover")
-                        .HasColumnType("varbinary(max)");
-
-                    b.Property<DateOnly>("ReleaseDate")
-                        .HasColumnType("date");
-
-                    b.Property<int?>("SecondGenreCode")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("SecondGenreGenreID")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("ReleaseID");
-
-                    b.HasIndex("MainGenreGenreID");
-
-                    b.HasIndex("SecondGenreGenreID");
-
-                    b.ToTable("Release");
-                });
-
             modelBuilder.Entity("WebApplication2.Models.ReleaseTrack", b =>
                 {
                     b.Property<int>("ID")
@@ -576,21 +540,6 @@ namespace WebApplication2.Data.Migrations
                     b.Navigation("PerformerType");
 
                     b.Navigation("SecondaryGenre");
-                });
-
-            modelBuilder.Entity("WebApplication2.Models.Release", b =>
-                {
-                    b.HasOne("WebApplication2.Models.Genre", "MainGenre")
-                        .WithMany()
-                        .HasForeignKey("MainGenreGenreID");
-
-                    b.HasOne("WebApplication2.Models.Genre", "SecondGenre")
-                        .WithMany()
-                        .HasForeignKey("SecondGenreGenreID");
-
-                    b.Navigation("MainGenre");
-
-                    b.Navigation("SecondGenre");
                 });
 
             modelBuilder.Entity("WebApplication2.Models.Track", b =>
