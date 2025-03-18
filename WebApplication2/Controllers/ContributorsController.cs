@@ -58,6 +58,13 @@ namespace WebApplication2.Controllers
                 }).ToList();
 
             ViewBag.Countries = new SelectList(countries, "CountryCode", "CountryName");
+
+            ViewBag.IsMaleOptions = new List<SelectListItem>
+            {
+                new SelectListItem { Text = "Male", Value = "True" },
+                new SelectListItem { Text = "Female", Value = "False" }
+            };
+
             return View();
         }
 
@@ -91,6 +98,13 @@ namespace WebApplication2.Controllers
             {
                 return NotFound();
             }
+
+            ViewBag.IsMaleOptions = new List<SelectListItem>
+            {
+                new SelectListItem { Text = "Male", Value = "True" },
+                new SelectListItem { Text = "Female", Value = "False" }
+            };
+
             //ViewData["CountryCode"] = new SelectList(_context.Country, "CountryCode", "CountryCode", contributor.CountryCode);
             var countries = _context.Country
                 .Select(gn => new CountryViewModel

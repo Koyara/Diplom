@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using WebApplication2.Data;
 using WebApplication2.Models;
+using WebApplication2.Models.ViewModels;
 
 namespace WebApplication2.Controllers
 {
@@ -47,6 +48,14 @@ namespace WebApplication2.Controllers
         // GET: Releases/Create
         public IActionResult Create()
         {
+            var releasetypes = _context.ReleaseType
+                .Select(gn => new ReleaseTypeViewModel
+                {
+                    ReleaseTypeID = gn.ReleaseTypeID,
+                    ReleaseTypeName = gn.ReleaseTypeName
+                }).ToList();
+
+            ViewBag.ReleaseTypes = new SelectList(releasetypes, "ReleaseTypeID", "ReleaseTypeName");
             return View();
         }
 
@@ -57,6 +66,15 @@ namespace WebApplication2.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Release release, IFormFile ReleaseCover)
         {
+            var releasetypes = _context.ReleaseType
+                .Select(gn => new ReleaseTypeViewModel
+                {
+                    ReleaseTypeID = gn.ReleaseTypeID,
+                    ReleaseTypeName = gn.ReleaseTypeName
+                }).ToList();
+
+            ViewBag.ReleaseTypes = new SelectList(releasetypes, "ReleaseTypeID", "ReleaseTypeName");
+
             if (ModelState.IsValid)
             {
                 if (ReleaseCover != null && ReleaseCover.Length > 0)
@@ -203,6 +221,15 @@ namespace WebApplication2.Controllers
         private bool ReleaseExists(int id)
         {
             return _context.Release.Any(e => e.ReleaseID == id);
+        }
+
+
+        [HttpGet]
+        public IActionResult LoadGenres()
+        {
+            var scales = _context.Genre.Select(s => new { s.GenreID, s.GenreName}).ToList();
+            var selectList = new SelectList(scales, "GenreID", "GenreName"); // Ensure property names match
+            return PartialView("_GenreSelectList", selectList);
         }
     }
 }

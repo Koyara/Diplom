@@ -28,8 +28,10 @@
                 <select asp-for="CountryCode" class="form-control" asp-items="ViewBag.Countries"></select>
             </div>
             <div class="form-group">
-                <label asp-for="IsMale" class="control-label"></label>
-                <input asp-for="IsMale" class="form-control" />
+                <label asp-for="IsMale" class="control-label">Gender</label>
+                <select asp-for="IsMale" class="form-control" asp-items="ViewBag.IsMaleOptions">
+                    <option value="">-- Select Gender --</option>
+                </select>
                 <span asp-validation-for="IsMale" class="text-danger"></span>
             </div>
             <div class="form-group">
