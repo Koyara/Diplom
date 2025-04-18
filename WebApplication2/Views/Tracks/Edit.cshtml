@@ -29,24 +29,35 @@
                 <span asp-validation-for="Title" class="text-danger"></span>
             </div>
             <div class="form-group">
+                <label asp-for="Lyrics" class="control-label"></label>
+                <input asp-for="Lyrics" class="form-control" />
+                <span asp-validation-for="Lyrics" class="text-danger"></span>
+            </div>
+            <div class="form-group">
                 <label asp-for="GuestID" class="control-label"></label>
-                <select asp-for="GuestID" class="form-control" id="GuestID"></select>
-                <button type="button" class="btn btn-secondary" id="loadGuests">Add Guest</button>
+                <select asp-for="GuestID" class="form-control" asp-items="ViewBag.Guests"></select>
+                <span asp-validation-for="GuestID" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="SecondGuestID" class="control-label"></label>
-                <select asp-for="SecondGuestID" class="form-control" id="SecondGuestID"></select>
-                <button type="button" class="btn btn-secondary" id="loadSecondGuests">Add Guest</button>
+                <select asp-for="SecondGuestID" class="form-control" asp-items="ViewBag.Guests">
+                    <option value="">-- Select Second Guest --</option>
+                </select>
+                <span asp-validation-for="SecondGuestID" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="LanguageCode" class="control-label"></label>
-                <select asp-for="LanguageCode" class="form-control" id="LanguageCode"></select>
-                <button type="button" class="btn btn-secondary" id="loadLanguages">Choose Language</button>
+                <select asp-for="LanguageCode" class="form-control" asp-items="ViewBag.Languages">
+                    <option value="">-- Select Language --</option>
+                </select>
+                <span asp-validation-for="LanguageCode" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="ScaleID" class="control-label"></label>
-                <select asp-for="ScaleID" class="form-control" id="ScaleID"></select>
-                <button type="button" class="btn btn-secondary" id="loadScales">Choose Scale</button>
+                <select asp-for="ScaleID" class="form-control" asp-items="ViewBag.Scales">
+                    <option value="">-- Select Scale --</option>
+                </select>
+                <span asp-validation-for="ScaleID" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />

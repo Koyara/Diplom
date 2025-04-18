@@ -11,6 +11,9 @@ namespace WebApplication2.Models
         public bool? IsSong { get; set; }
         public string Title { get; set; }
 
+
+        public string? Lyrics { get; set; }
+
         [ForeignKey("Performer")]
         public int? GuestID { get; set; }
         public virtual Performer? MainGuest { get; set; }

@@ -13,7 +13,7 @@ namespace WebApplication2.Models
 
         [ForeignKey("Country")]
         public string? CountryCode { get; set; }
-        public virtual Country Country{ get; set; }
+        public virtual Country? Country{ get; set; }
         public bool? IsMale { get; set; }
        
 

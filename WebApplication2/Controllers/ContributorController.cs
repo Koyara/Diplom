@@ -11,23 +11,23 @@ using WebApplication2.Models.ViewModels;
 
 namespace WebApplication2.Controllers
 {
-    public class ContributorsController : Controller
+    public class ContributorController : Controller
     {
         private readonly ApplicationDbContext _context;
 
-        public ContributorsController(ApplicationDbContext context)
+        public ContributorController(ApplicationDbContext context)
         {
             _context = context;
         }
 
-        // GET: Contributors
+        // GET: Contributor
         public async Task<IActionResult> Index()
         {
             var applicationDbContext = _context.Contributor.Include(c => c.Country);
             return View(await applicationDbContext.ToListAsync());
         }
 
-        // GET: Contributors/Details/5
+        // GET: Contributor/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -46,10 +46,17 @@ namespace WebApplication2.Controllers
             return View(contributor);
         }
 
-        // GET: Contributors/Create
+        // GET: Contributor/Create
         public IActionResult Create()
         {
-            //ViewData["CountryCode"] = new SelectList(_context.Country, "CountryCode", "CountryCode");
+
+            ViewBag.IsMaleOptions = new SelectList(new List<SelectListItem>
+            {
+                new SelectListItem { Value = "", Text = "Not Specified" },
+                new SelectListItem { Value = "true", Text = "Male" },
+                new SelectListItem { Value = "false", Text = "Female" }
+            }, "Value", "Text");
+
             var countries = _context.Country
                 .Select(gn => new CountryViewModel
                 {
@@ -59,16 +66,12 @@ namespace WebApplication2.Controllers
 
             ViewBag.Countries = new SelectList(countries, "CountryCode", "CountryName");
 
-            ViewBag.IsMaleOptions = new List<SelectListItem>
-            {
-                new SelectListItem { Text = "Male", Value = "True" },
-                new SelectListItem { Text = "Female", Value = "False" }
-            };
 
+            ViewData["CountryCode"] = new SelectList(_context.Country, "CountryCode", "CountryCode");
             return View();
         }
 
-        // POST: Contributors/Create
+        // POST: Contributor/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
@@ -81,11 +84,28 @@ namespace WebApplication2.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+
+            ViewBag.IsMaleOptions = new SelectList(new List<SelectListItem>
+            {
+                new SelectListItem { Value = "", Text = "Not Specified" },
+                new SelectListItem { Value = "true", Text = "Male" },
+                new SelectListItem { Value = "false", Text = "Female" }
+            }, "Value", "Text");
+
+            var countries = _context.Country
+                .Select(gn => new CountryViewModel
+                {
+                    CountryCode = gn.CountryCode,
+                    CountryName = gn.CountryName
+                }).ToList();
+
+            ViewBag.Countries = new SelectList(countries, "CountryCode", "CountryName");
+
             ViewData["CountryCode"] = new SelectList(_context.Country, "CountryCode", "CountryCode", contributor.CountryCode);
             return View(contributor);
         }
 
-        // GET: Contributors/Edit/5
+        // GET: Contributor/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -99,13 +119,13 @@ namespace WebApplication2.Controllers
                 return NotFound();
             }
 
-            ViewBag.IsMaleOptions = new List<SelectListItem>
+            ViewBag.IsMaleOptions = new SelectList(new List<SelectListItem>
             {
-                new SelectListItem { Text = "Male", Value = "True" },
-                new SelectListItem { Text = "Female", Value = "False" }
-            };
+                new SelectListItem { Value = "", Text = "Not Specified" },
+                new SelectListItem { Value = "true", Text = "Male" },
+                new SelectListItem { Value = "false", Text = "Female" }
+            }, "Value", "Text");
 
-            //ViewData["CountryCode"] = new SelectList(_context.Country, "CountryCode", "CountryCode", contributor.CountryCode);
             var countries = _context.Country
                 .Select(gn => new CountryViewModel
                 {
@@ -114,10 +134,12 @@ namespace WebApplication2.Controllers
                 }).ToList();
 
             ViewBag.Countries = new SelectList(countries, "CountryCode", "CountryName");
+
+            ViewData["CountryCode"] = new SelectList(_context.Country, "CountryCode", "CountryCode", contributor.CountryCode);
             return View(contributor);
         }
 
-        // POST: Contributors/Edit/5
+        // POST: Contributor/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
@@ -149,7 +171,14 @@ namespace WebApplication2.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            //ViewData["CountryCode"] = new SelectList(_context.Country, "CountryCode", "CountryCode", contributor.CountryCode);
+
+            ViewBag.IsMaleOptions = new SelectList(new List<SelectListItem>
+            {
+                new SelectListItem { Value = "", Text = "Not Specified" },
+                new SelectListItem { Value = "true", Text = "Male" },
+                new SelectListItem { Value = "false", Text = "Female" }
+            }, "Value", "Text");
+
             var countries = _context.Country
                 .Select(gn => new CountryViewModel
                 {
@@ -158,10 +187,12 @@ namespace WebApplication2.Controllers
                 }).ToList();
 
             ViewBag.Countries = new SelectList(countries, "CountryCode", "CountryName");
+
+            ViewData["CountryCode"] = new SelectList(_context.Country, "CountryCode", "CountryCode", contributor.CountryCode);
             return View(contributor);
         }
 
-        // GET: Contributors/Delete/5
+        // GET: Contributor/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -180,7 +211,7 @@ namespace WebApplication2.Controllers
             return View(contributor);
         }
 
-        // POST: Contributors/Delete/5
+        // POST: Contributor/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)

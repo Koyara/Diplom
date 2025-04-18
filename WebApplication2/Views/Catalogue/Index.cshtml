@@ -1,0 +1,119 @@
+﻿@model List<WebApplication2.Models.ViewModels.ReleaseCatalogueViewModel>
+@{
+    ViewData["Title"] = "Music Catalogue";
+}
+
+<div class="catalogue-container">
+    <!-- Header with Search -->
+    <div class="catalogue-header">
+        <h1>Music Catalogue</h1>
+        <form asp-action="Index" method="get" class="search-form">
+            <div class="input-group">
+                <input type="text" class="form-control" name="searchTerm"
+                       value="@ViewBag.SearchTerm" placeholder="Search releases...">
+                <button class="btn btn-primary" type="submit">
+                    <i class="bi bi-search"></i>
+                </button>
+                @if (!string.IsNullOrEmpty(ViewBag.SearchTerm))
+                {
+                    <a asp-action="Index" class="btn btn-outline-secondary">Clear</a>
+                }
+            </div>
+        </form>
+    </div>
+
+    <!-- Filter Chips (optional) -->
+    <div class="filter-chips">
+        <a asp-action="Index" class="chip @(string.IsNullOrEmpty(ViewBag.SearchTerm) ? "active" : "")">All</a>
+        @foreach (var genre in Model.Select(r => r.MainGenre).Distinct().Take(5))
+        {
+            if (!string.IsNullOrEmpty(genre))
+            {
+                <a asp-action="Index" asp-route-searchTerm="@genre" class="chip">@genre</a>
+            }
+        }
+    </div>
+
+    <!-- Releases Grid -->
+    @if (Model.Any())
+    {
+        <div class="release-grid">
+            @foreach (var release in Model)
+            {
+                <div class="release-card">
+                    <div class="release-cover-container">
+                        <img src="@release.CoverImageUrl" alt="@release.Title"
+                             class="release-cover" onerror="this.src='/images/default-cover.jpg'">
+                        <div class="release-overlay">
+                            <a asp-controller="Releases" asp-action="Details" asp-route-id="@release.ReleaseID"
+                               class="btn btn-sm btn-overlay">
+                                <i class="bi bi-play-fill"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="release-info">
+                        <h3 class="release-title">@release.Title</h3>
+                        <div class="release-meta">
+                            @if (!string.IsNullOrEmpty(release.ReleaseType))
+                            {
+                                <span class="release-type">@release.ReleaseType</span>
+                            }
+                            <span class="release-year">@release.ReleaseDate.Year</span>
+                        </div>
+                        @if (!string.IsNullOrEmpty(release.MainGenre))
+                        {
+                            <div class="release-genre">@release.MainGenre</div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="empty-state">
+            <i class="bi bi-music-note-beamed"></i>
+            <h3>No releases found</h3>
+            @if (!string.IsNullOrEmpty(ViewBag.SearchTerm))
+            {
+                <p>No matches for "@ViewBag.SearchTerm"</p>
+                <a asp-action="Index" class="btn btn-primary">View all releases</a>
+            }
+            else
+            {
+                <p>The catalogue is currently empty</p>
+            }
+        </div>
+    }
+</div>
+
+@section Styles {
+
+}
+
+@section Scripts {
+    <script>
+        // Add any interactive functionality here
+        document.addEventListener('DOMContentLoaded', function() {
+            // Image fallback handling
+            document.querySelectorAll('.release-cover').forEach(img => {
+                img.onerror = function() {
+                    this.src = '/images/default-cover.jpg';
+                };
+            });
+
+            // Optional: Add click handler for entire card
+            document.querySelectorAll('.release-card').forEach(card => {
+                card.addEventListener('click', function(e) {
+                    // Don't navigate if clicking on buttons/links inside the card
+                    if (e.target.tagName !== 'A' && e.target.tagName !== 'BUTTON') {
+                        const link = this.querySelector('a[href]');
+                        if (link) {
+                            window.location.href = link.href;
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+}

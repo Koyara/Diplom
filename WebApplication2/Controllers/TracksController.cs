@@ -63,7 +63,7 @@ namespace WebApplication2.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("TrackID,Length,IsSong,Title,GuestID,SecondGuestID,LanguageCode,ScaleId")] Track track)
+        public async Task<IActionResult> Create([Bind("TrackID,Length,IsSong,Title,Lyrics,GuestID,SecondGuestID,LanguageCode,ScaleId")] Track track)
         {
             if (ModelState.IsValid)
             {
@@ -87,15 +87,22 @@ namespace WebApplication2.Controllers
                 return NotFound();
             }
 
-            var track = await _context.Track.FindAsync(id);
+            var track = await _context.Track
+                .Include(t => t.Language)
+                .Include(t => t.Scale)
+                .Include(t => t.SecondGuest)
+                .FirstOrDefaultAsync(m => m.TrackID == id);
+
             if (track == null)
             {
                 return NotFound();
             }
 
-            //ViewData["LanguageCode"] = new SelectList(_context.Language, "LanguageCode", "LanguageCode", track.LanguageCode);
-            //ViewData["ScaleID"] = new SelectList(_context.Scale, "ScaleId", "ScaleId", track.ScaleID);
-            //ViewData["SecondGuestID"] = new SelectList(_context.Performer, "PerformerID", "PerformerID", track.SecondGuestID);
+            // Load initial data for dropdowns
+            ViewBag.Guests = new SelectList(_context.Performer.Select(p => new { p.PerformerID, p.Name }), "PerformerID", "Name");
+            ViewBag.Languages = new SelectList(_context.Language.Select(l => new { l.LanguageCode, l.LanguageName }), "LanguageCode", "LanguageName");
+            ViewBag.Scales = new SelectList(_context.Scale.Select(s => new { s.ScaleId, s.Name }), "ScaleId", "Name");
+
             return View(track);
         }
 
@@ -104,7 +111,7 @@ namespace WebApplication2.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("TrackID,Length,IsSong,Title,GuestID,SecondGuestID,LanguageCode,ScaleID")] Track track)
+        public async Task<IActionResult> Edit(int id, [Bind("TrackID,Length,IsSong,Title,Lyrics,GuestID,SecondGuestID,LanguageCode,ScaleID")] Track track)
         {
             if (id != track.TrackID)
             {
