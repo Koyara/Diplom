@@ -34,7 +34,10 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+
 app.UseAuthorization();
+
+
 
 app.MapControllerRoute( 
     name: "default",
@@ -43,6 +46,13 @@ app.MapControllerRoute(
 app.MapRazorPages();
 
 app.Run();
+
+
+/*// moje
+builder.Services.AddAuthorization();
+builder.Services.AddAuthentication().AddCookie(IdentityConstants.ApplicationScheme);
+builder.Services.AddIdentityCore*/
+
 
 builder.Services.Configure<IdentityOptions>(options =>
 {
