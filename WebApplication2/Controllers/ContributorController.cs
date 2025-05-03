@@ -47,9 +47,19 @@ namespace WebApplication2.Controllers
         }
 
         // GET: Contributor/Create
+        [HttpGet]
+        //public IActionResult GetData()
+        //{
+
+        //}
+        [HttpGet]
         public IActionResult Create()
         {
+            var jwt = HttpContext.Request.Headers.ToString();
 
+            Console.WriteLine($"🔑 JWT: {jwt}");
+
+            Console.WriteLine("-----------------------");
             ViewBag.IsMaleOptions = new SelectList(new List<SelectListItem>
             {
                 new SelectListItem { Value = "", Text = "Not Specified" },
@@ -76,6 +86,7 @@ namespace WebApplication2.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+
         public async Task<IActionResult> Create([Bind("ContributorID,FullName,BirthDate,CountryCode,IsMale")] Contributor contributor)
         {
             if (ModelState.IsValid)

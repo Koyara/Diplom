@@ -11,11 +11,20 @@ namespace WebApplication2.Controllers
     [Route("MainPage")]
     public class MainPage : Controller
     {
+        private readonly ApplicationDbContext _context;
+
+        public MainPage(ApplicationDbContext context)
+        {
+            _context = context;
+        }
         public IActionResult Index()
         {
-            return View();
+            var releases = _context.Release
+                .Include(r => r.MainGenre)
+                .Include(r => r.ReleaseType)
+                .ToList();
+            return View(releases);
         }
-
 
     }
 }

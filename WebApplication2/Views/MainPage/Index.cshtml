@@ -1,8 +1,146 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
+﻿@model IEnumerable<Release>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Music Albums</title>
+    <style>
+        /* Main layout styles */
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Nahuj pidarov</p>
-</div>
+        .search-container {
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: center;
+        }
+
+        #searchBox {
+            width: 60%;
+            padding: 12px 20px;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        #searchBox:focus {
+            border-color: #1db954;
+            box-shadow: 0 0 8px rgba(29, 185, 84, 0.3);
+        }
+
+        /* Album grid styles */
+        .albums-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 25px;
+            padding: 0 50px;
+        }
+
+        .album-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+
+        .album-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+
+        .album-cover {
+            width: 100%;
+            aspect-ratio: 1/1;
+            object-fit: cover;
+        }
+
+        .album-info {
+            padding: 15px;
+        }
+
+        .album-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .album-details {
+            color: #666;
+            font-size: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Responsive adjustments */
+        @@media (max-width: 768px) {
+            .albums-container {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                padding: 0 20px;
+                gap: 15px;
+            }
+            
+            #searchBox {
+                width: 80%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="search-container">
+        <input type="text" id="searchBox" placeholder="Search albums..." />
+    </div>
+
+    <div class="albums-container">
+        @foreach (var release in Model)
+        {
+            <div class="album-card" data-album-name="@release.Title.ToLower()">
+                @if (release.ReleaseCover != null)
+                {
+                    <img src="data:image/jpeg;base64,@Convert.ToBase64String(release.ReleaseCover)" 
+                         alt="@release.Title" class="album-cover" />
+                }
+                else
+                {
+                    <img src="https://via.placeholder.com/300" alt="No cover" class="album-cover" />
+                }
+                <div class="album-info">
+                    <div class="album-title">@release.Title</div>
+                    <div class="album-details">
+                        @release.ReleaseDate.ToString("yyyy") • 
+                        @(release.MainGenre?.GenreName ?? "Unknown Genre")
+                    </div>
+
+                </div>
+            </div>
+        }
+    </div>
+
+    <script>
+        // Search functionality
+        document.getElementById('searchBox').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const albums = document.querySelectorAll('.album-card');
+            
+            albums.forEach(album => {
+                const albumName = album.getAttribute('data-album-name');
+                
+                if (albumName.includes(searchTerm)) {
+                    album.style.display = 'block';
+                } else {
+                    album.style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

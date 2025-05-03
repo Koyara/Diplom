@@ -26,5 +26,6 @@ namespace WebApplication2.Data
         public DbSet<WebApplication2.Models.ReleaseType> ReleaseType { get; set; } = default!;
 
         public DbSet<WebApplication2.Models.Rondo> Rondo { get; set; } = default!;
+
     }
 }
