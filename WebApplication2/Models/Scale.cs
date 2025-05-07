@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace WebApplication2.Models
 {
@@ -7,6 +6,8 @@ namespace WebApplication2.Models
     {
         [Key]
         public int ScaleId { get; set; }
-        public String Name{ get; set; }
+
+        [Required]
+        public string Name { get; set; }
     }
 }

@@ -5,7 +5,8 @@ namespace WebApplication2.Models
     public class PerformerType
     {
         [Key]
-        public int PerformerTypeID{ get; set; }
-        public String? TypeName { get; set; }
+        public int PerformerTypeID { get; set; }
+
+        public string? TypeName { get; set; }
     }
 }

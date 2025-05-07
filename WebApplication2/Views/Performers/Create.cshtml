@@ -13,8 +13,11 @@
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="PerformerTypeID"></label>
-                <select asp-for="PerformerTypeID" class="form-control" asp-items="ViewBag.PerformerTypes"></select>
+                <label asp-for="PerformerTypeID" class="control-label">Performer Type *</label>
+                <select asp-for="PerformerTypeID" class="form-control" asp-items="ViewBag.PerformerTypes" required>
+                    <option value="">-- Select Performer Type --</option>
+                </select>
+                <span asp-validation-for="PerformerTypeID" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Name" class="control-label"></label>
@@ -27,12 +30,25 @@
                 <span asp-validation-for="Description" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="MainGenreID" class="control-label"></label>
-                <select asp-for="MainGenreID" class ="form-control" asp-items="ViewBag.Genres"></select>
+                <label asp-for="MainGenreID" class="control-label">Main Genre</label>
+                <select asp-for="MainGenreID" class="form-control" asp-items="ViewBag.Genres">
+                    <option value="">-- Select Main Genre --</option>
+                </select>
+                <span asp-validation-for="MainGenreID" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="SecondaryGenreID" class="control-label"></label>
-                <select asp-for="SecondaryGenreID" class ="form-control" asp-items="ViewBag.Genres"></select>
+                <label asp-for="SecondaryGenreID" class="control-label">Secondary Genre</label>
+                <select asp-for="SecondaryGenreID" class="form-control" asp-items="ViewBag.Genres">
+                    <option value="">-- Select Secondary Genre --</option>
+                </select>
+                <span asp-validation-for="SecondaryGenreID" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CountryCode" class="control-label">Country *</label>
+                <select asp-for="CountryCode" class="form-control" asp-items="ViewBag.Countries" required>
+                    <option value="">-- Select Country --</option>
+                </select>
+                <span asp-validation-for="CountryCode" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />

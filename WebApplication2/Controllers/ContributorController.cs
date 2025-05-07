@@ -91,7 +91,7 @@ namespace WebApplication2.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(contributor);
+                _context.Contributor.Add(contributor);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
@@ -166,7 +166,7 @@ namespace WebApplication2.Controllers
             {
                 try
                 {
-                    _context.Update(contributor);
+                    _context.Contributor.Update(contributor);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)

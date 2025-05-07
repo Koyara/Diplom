@@ -1,5 +1,4 @@
-﻿using NuGet.Protocol.Core.Types;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace WebApplication2.Models
 {
@@ -7,6 +6,7 @@ namespace WebApplication2.Models
     {
         [Key]
         public int GenreID { get; set; }
+
         public string? GenreName { get; set; }
     }
 }

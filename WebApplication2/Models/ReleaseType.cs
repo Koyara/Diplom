@@ -7,7 +7,7 @@ namespace WebApplication2.Models
         [Key]
         public int ReleaseTypeID { get; set; }
 
+        [Required]
         public string ReleaseTypeName { get; set; }
-
     }
 }

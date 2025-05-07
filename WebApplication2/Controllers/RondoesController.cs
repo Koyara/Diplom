@@ -1,4 +1,4 @@
-﻿using System;
+﻿/*using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -20,20 +20,20 @@ namespace WebApplication2.Controllers
         }
 
         // GET: Rondoes
-        public async Task<IActionResult> Index()
+*//*        public async Task<IActionResult> Index()
         {
-            return View(await _context.Rondo.ToListAsync());
-        }
+            return View(await _context.Rondoes.ToListAsync());
+        }*//*
 
         // GET: Rondoes/Details/5
-        public async Task<IActionResult> Details(int? id)
+*//*        public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var rondo = await _context.Rondo
+            var rondo = await _context.Rondoes
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (rondo == null)
             {
@@ -41,7 +41,7 @@ namespace WebApplication2.Controllers
             }
 
             return View(rondo);
-        }
+        }*//*
 
         // GET: Rondoes/Create
         public IActionResult Create()
@@ -58,7 +58,7 @@ namespace WebApplication2.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(rondo);
+                _context.Rondoes.Add(rondo);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
@@ -73,7 +73,7 @@ namespace WebApplication2.Controllers
                 return NotFound();
             }
 
-            var rondo = await _context.Rondo.FindAsync(id);
+            var rondo = await _context.Rondoes.FindAsync(id);
             if (rondo == null)
             {
                 return NotFound();
@@ -97,7 +97,7 @@ namespace WebApplication2.Controllers
             {
                 try
                 {
-                    _context.Update(rondo);
+                    _context.Rondoes.Update(rondo);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -124,7 +124,7 @@ namespace WebApplication2.Controllers
                 return NotFound();
             }
 
-            var rondo = await _context.Rondo
+            var rondo = await _context.Rondoes
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (rondo == null)
             {
@@ -139,10 +139,10 @@ namespace WebApplication2.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var rondo = await _context.Rondo.FindAsync(id);
+            var rondo = await _context.Rondoes.FindAsync(id);
             if (rondo != null)
             {
-                _context.Rondo.Remove(rondo);
+                _context.Rondoes.Remove(rondo);
             }
 
             await _context.SaveChangesAsync();
@@ -151,7 +151,8 @@ namespace WebApplication2.Controllers
 
         private bool RondoExists(int id)
         {
-            return _context.Rondo.Any(e => e.Id == id);
+            return _context.Rondoes.Any(e => e.Id == id);
         }
     }
 }
+*/

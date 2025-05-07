@@ -1,8 +1,120 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model WebApplication2.Models.ViewModels.SearchResultsViewModel
+@{
+    ViewData["Title"] = "Home";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Nigga <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="home-container">
+    <div class="search-section">
+        <h1>Music Search</h1>
+        <div class="search-tabs">
+            <button class="search-tab active" data-tab="releases">Search Releases</button>
+            <button class="search-tab" data-tab="artists">Search Artists</button>
+            <button class="search-tab" data-tab="lyrics">Search Lyrics</button>
+        </div>
+        
+        <form id="searchForm" class="search-form" method="get">
+            <div class="input-group">
+                <input type="text" class="form-control" name="searchTerm" 
+                       placeholder="Enter your search term..." value="@ViewBag.SearchTerm">
+                <input type="hidden" name="searchType" id="searchType" value="releases">
+                <button class="btn btn-primary" type="submit">
+                    <i class="bi bi-search"></i> Search
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div class="results-section">
+        @if (!string.IsNullOrEmpty(ViewBag.SearchTerm))
+        {
+            <h2>Search Results for "@ViewBag.SearchTerm"</h2>
+            
+            @if (Model.Releases.Any() || Model.Artists.Any() || Model.Tracks.Any())
+            {
+                <div class="results-container">
+                    @if (Model.Releases.Any())
+                    {
+                        <div class="results-group">
+                            <h3>Releases</h3>
+                            <div class="results-grid">
+                                @foreach (var release in Model.Releases)
+                                {
+                                    <a href="@Url.Action("Details", "Releases", new { id = release.ReleaseID })" class="result-card">
+                                        <img src="@release.CoverImageUrl" alt="@release.Title" class="result-image">
+                                        <div class="result-info">
+                                            <h4>@release.Title</h4>
+                                            <p>@release.ReleaseType • @release.ReleaseDate.Year</p>
+                                        </div>
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                    }
+
+                    @if (Model.Artists.Any())
+                    {
+                        <div class="results-group">
+                            <h3>Artists</h3>
+                            <div class="results-grid">
+                                @foreach (var artist in Model.Artists)
+                                {
+                                    <a href="@Url.Action("Details", "Performers", new { id = artist.PerformerID })" class="result-card">
+                                        <div class="result-info">
+                                            <h4>@artist.Name</h4>
+                                            <p>@artist.MainGenre</p>
+                                        </div>
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                    }
+
+                    @if (Model.Tracks.Any())
+                    {
+                        <div class="results-group">
+                            <h3>Tracks</h3>
+                            <div class="results-grid">
+                                @foreach (var track in Model.Tracks)
+                                {
+                                    <a href="@Url.Action("Details", "Tracks", new { id = track.TrackID })" class="result-card">
+                                        <div class="result-info">
+                                            <h4>@track.Title</h4>
+                                            <p>@track.ArtistName</p>
+                                        </div>
+                                    </a>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="no-results">
+                    <i class="bi bi-search"></i>
+                    <p>No results found for "@ViewBag.SearchTerm"</p>
+                </div>
+            }
+        }
+    </div>
 </div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabs = document.querySelectorAll('.search-tab');
+            const searchTypeInput = document.getElementById('searchType');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // Remove active class from all tabs
+                    tabs.forEach(t => t.classList.remove('active'));
+                    // Add active class to clicked tab
+                    this.classList.add('active');
+                    // Update hidden input value
+                    searchTypeInput.value = this.dataset.tab;
+                });
+            });
+        });
+    </script>
+}

@@ -8,16 +8,17 @@ namespace WebApplication2.Models
     {
         [Key]
         public int ContributorID { get; set; }
+
+        [Required]
         public string FullName { get; set; }
+
         public DateOnly? BirthDate { get; set; }
 
         [ForeignKey("Country")]
         public string? CountryCode { get; set; }
-        public virtual Country? Country{ get; set; }
+        public virtual Country? Country { get; set; }
+
         public bool? IsMale { get; set; }
-       
-
-
 
         public Contributor()
         {

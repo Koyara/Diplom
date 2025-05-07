@@ -1,0 +1,69 @@
+@{
+    ViewData["Title"] = "Editor Dashboard";
+}
+
+<div class="container mt-4">
+    <h1 class="mb-4">Editor Dashboard</h1>
+    
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Releases</h5>
+                    <p class="card-text">Manage music releases and their details.</p>
+                    <a href="@Url.Action("Index", "Releases")" class="btn btn-primary">Go to Releases</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Tracks</h5>
+                    <p class="card-text">Manage individual tracks and their information.</p>
+                    <a href="@Url.Action("Index", "Tracks")" class="btn btn-primary">Go to Tracks</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Performers</h5>
+                    <p class="card-text">Manage performer information and details.</p>
+                    <a href="@Url.Action("Index", "Performers")" class="btn btn-primary">Go to Performers</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Contributors</h5>
+                    <p class="card-text">Manage contributor information and roles.</p>
+                    <a href="@Url.Action("Index", "Contributor")" class="btn btn-primary">Go to Contributors</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Catalogue</h5>
+                    <p class="card-text">Manage catalogue entries and organization.</p>
+                    <a href="@Url.Action("Index", "Catalogue")" class="btn btn-primary">Go to Catalogue</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Rondoes</h5>
+                    <p class="card-text">Manage rondo information and details.</p>
+                    <a href="@Url.Action("Index", "Rondoes")" class="btn btn-primary">Go to Rondoes</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 

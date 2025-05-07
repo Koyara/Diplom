@@ -4,98 +4,119 @@
     ViewData["Title"] = "Create";
 }
 
-<h1>Create</h1>
+<h1>Create Track</h1>
 
-<h4>Track</h4>
 <hr />
 <div class="row">
-    <div class="col-md-4">
+    <div class="col-md-6">
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Length" class="control-label"></label>
-                <input asp-for="Length" class="form-control" />
-                <span asp-validation-for="Length" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="IsSong" class="control-label"></label>
-                <input asp-for="IsSong" class="form-control" />
-                <span asp-validation-for="IsSong" class="text-danger"></span>
-            </div>
-            <div class="form-group">
+            
+            <div class="form-group mb-3">
                 <label asp-for="Title" class="control-label"></label>
                 <input asp-for="Title" class="form-control" />
                 <span asp-validation-for="Title" class="text-danger"></span>
             </div>
-            <div class="form-group">
+
+            <div class="form-group mb-3">
+                <label asp-for="Length" class="control-label"></label>
+                <input asp-for="Length" class="form-control" type="time" step="1" />
+                <span asp-validation-for="Length" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" name="IsSong" id="IsSong" value="true" />
+                    <input type="hidden" name="IsSong" value="false" />
+                    <label class="form-check-label" for="IsSong">Is this a song?</label>
+                </div>
+                <span asp-validation-for="IsSong" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
                 <label asp-for="Lyrics" class="control-label"></label>
-                <input asp-for="Lyrics" class="form-control" />
+                <textarea asp-for="Lyrics" class="form-control" rows="4"></textarea>
                 <span asp-validation-for="Lyrics" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="GuestID" class="control-label"></label>
-                <select asp-for="GuestID" class="form-control" id="GuestID"></select>
-                <button type="button" class="btn btn-secondary" id="loadGuests">Add Guest</button>
+
+            <div class="form-group mb-3">
+                <label asp-for="GuestID" class="control-label">Main Guest</label>
+                <select asp-for="GuestID" class="form-control select2" id="GuestID">
+                    <option value="">-- Search for a guest --</option>
+                </select>
+                <span asp-validation-for="GuestID" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="SecondGuestID" class="control-label"></label>
-                <select asp-for="SecondGuestID" class="form-control" id="SecondGuestID"></select>
-                <button type="button" class="btn btn-secondary" id="loadSecondGuests">Add Guest</button>
+
+            <div class="form-group mb-3">
+                <label asp-for="SecondGuestID" class="control-label">Second Guest</label>
+                <select asp-for="SecondGuestID" class="form-control select2" id="SecondGuestID">
+                    <option value="">-- Search for a guest --</option>
+                </select>
+                <span asp-validation-for="SecondGuestID" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="LanguageCode" class="control-label"></label>
-                <select asp-for="LanguageCode" class="form-control" id="LanguageCode"></select>
-                <button type="button" class="btn btn-secondary" id="loadLanguages">Choose Language</button>
+
+            <div class="form-group mb-3">
+                <label asp-for="LanguageCode" class="control-label">Language</label>
+                <select asp-for="LanguageCode" class="form-control select2" id="LanguageCode">
+                    <option value="">-- Select Language --</option>
+                </select>
+                <span asp-validation-for="LanguageCode" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="ScaleID" class="control-label"></label>
-                <select asp-for="ScaleID" class="form-control" id="ScaleID"></select>
-                <button type="button" class="btn btn-secondary" id="loadScales">Choose Scale</button>
+
+            <div class="form-group mb-3">
+                <label asp-for="ScaleID" class="control-label">Scale</label>
+                <select asp-for="ScaleID" class="form-control select2" id="ScaleID">
+                    <option value="">-- Select Scale --</option>
+                </select>
+                <span asp-validation-for="ScaleID" class="text-danger"></span>
             </div>
+
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
+                <a asp-action="Index" class="btn btn-secondary">Back to List</a>
             </div>
         </form>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    
+    <script>
+        $(document).ready(function() {
+            // Initialize Select2 for all dropdowns
+            $('.select2').select2({
+                width: '100%',
+                placeholder: 'Search...',
+                allowClear: true
+            });
+
+            // Load initial data
+            loadGuests();
+            loadLanguages();
+            loadScales();
+
+            function loadGuests() {
+                $.get('@Url.Action("LoadGuests")', function(data) {
+                    $('#GuestID').html('<option value="">-- Search for a guest --</option>' + data);
+                    $('#SecondGuestID').html('<option value="">-- Search for a guest --</option>' + data);
+                });
+            }
+
+            function loadLanguages() {
+                $.get('@Url.Action("LoadLanguages")', function(data) {
+                    $('#LanguageCode').html('<option value="">-- Select Language --</option>' + data);
+                });
+            }
+
+            function loadScales() {
+                $.get('@Url.Action("LoadScales")', function(data) {
+                    $('#ScaleID').html('<option value="">-- Select Scale --</option>' + data);
+                });
+            }
+        });
+    </script>
 }
-
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script>
-    $(document).ready(function () {
-        $('#loadGuests').click(function (e) {
-            e.preventDefault();
-            $.get('@Url.Action("LoadGuests")', function (data) {
-                $('#GuestID').empty().append(data);
-            });
-        });
-
-        $('#loadSecondGuests').click(function (e) {
-            e.preventDefault();
-            $.get('@Url.Action("LoadGuests")', function (data) {
-                $('#SecondGuestID').empty().append(data);
-            });
-        });
-
-        $('#loadLanguages').click(function (e) {
-            e.preventDefault();
-            $.get('@Url.Action("LoadLanguages")', function (data) {
-                $('#LanguageCode').empty().append(data);
-            });
-        });
-
-        $('#loadScales').click(function (e) {
-            e.preventDefault();
-            $.get('@Url.Action("LoadScales")', function (data) {
-                $('#ScaleID').empty().append(data);
-            });
-        });
-    });
-</script>

@@ -51,31 +51,23 @@ namespace WebApplication2.Controllers
         // GET: Performers/Create
         public IActionResult Create()
         {
+            var performerTypes = _context.PerformerType
+                .Select(pt => new PerformerTypeViewModel
+                {
+                    PerformerTypeID = pt.PerformerTypeID,
+                    TypeName = pt.TypeName
+                }).ToList();
+
             var genres = _context.Genre
                 .Select(gn => new GenreViewModel
                 {
                     GenreID = gn.GenreID,
                     GenreName = gn.GenreName
                 }).ToList();
-            ViewBag.Genres = new SelectList(genres, "GenreID", "GenreName");
-            ViewBag.SecondaryGenre = new SelectList(genres, "GenreID", "GenreName");
-
-
-
-            //ViewData["MainGenreID"] = new SelectList(_context.Genre, "GenreID", "GenreID");
-            //ViewData["PerformerTypeID"] = new SelectList(_context.PerformerType, "PerformerTypeID", "PerformerTypeID");
-
-            var performerTypes = _context.PerformerType
-            .Select(pt => new PerformerTypeViewModel
-            {
-                PerformerTypeID = pt.PerformerTypeID,
-                TypeName = pt.TypeName
-            }).ToList();
 
             ViewBag.PerformerTypes = new SelectList(performerTypes, "PerformerTypeID", "TypeName");
-            return View();
-
-            ViewData["SecondaryGenreID"] = new SelectList(_context.Genre, "GenreID", "GenreID");
+            ViewBag.Genres = new SelectList(genres, "GenreID", "GenreName");
+            ViewBag.Countries = new SelectList(_context.Country.Select(c => new { c.CountryCode, c.CountryName }), "CountryCode", "CountryName");
             return View();
         }
 
@@ -84,7 +76,7 @@ namespace WebApplication2.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("PerformerID,PerformerTypeID,Name,Description,MainGenreID,SecondaryGenreID")] Performer performer)
+        public async Task<IActionResult> Create([Bind("PerformerID,PerformerTypeID,Name,Description,MainGenreID,SecondaryGenreID,CountryCode")] Performer performer)
         {
             if (ModelState.IsValid)
             {
@@ -92,15 +84,13 @@ namespace WebApplication2.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["MainGenreID"] = new SelectList(_context.Genre, "GenreID", "GenreID", performer.MainGenreID);
-            //ViewData["PerformerTypeID"] = new SelectList(_context.PerformerType, "PerformerTypeID", "PerformerTypeID", performer.PerformerTypeID);
 
             var performerTypes = _context.PerformerType
-            .Select(pt => new PerformerTypeViewModel
-            {
-                PerformerTypeID = pt.PerformerTypeID,
-                TypeName = pt.TypeName
-            }).ToList();
+                .Select(pt => new PerformerTypeViewModel
+                {
+                    PerformerTypeID = pt.PerformerTypeID,
+                    TypeName = pt.TypeName
+                }).ToList();
 
             var genres = _context.Genre
                 .Select(gn => new GenreViewModel
@@ -109,11 +99,9 @@ namespace WebApplication2.Controllers
                     GenreName = gn.GenreName
                 }).ToList();
 
-            ViewBag.Genres = new SelectList(genres, "GenreID", "GenreName");
-
             ViewBag.PerformerTypes = new SelectList(performerTypes, "PerformerTypeID", "TypeName");
-
-            ViewData["SecondaryGenreID"] = new SelectList(_context.Genre, "GenreID", "GenreID", performer.SecondaryGenreID);
+            ViewBag.Genres = new SelectList(genres, "GenreID", "GenreName");
+            ViewBag.Countries = new SelectList(_context.Country.Select(c => new { c.CountryCode, c.CountryName }), "CountryCode", "CountryName");
             return View(performer);
         }
 
@@ -131,6 +119,13 @@ namespace WebApplication2.Controllers
                 return NotFound();
             }
 
+            var performerTypes = _context.PerformerType
+                .Select(pt => new PerformerTypeViewModel
+                {
+                    PerformerTypeID = pt.PerformerTypeID,
+                    TypeName = pt.TypeName
+                }).ToList();
+
             var genres = _context.Genre
                 .Select(gn => new GenreViewModel
                 {
@@ -138,23 +133,9 @@ namespace WebApplication2.Controllers
                     GenreName = gn.GenreName
                 }).ToList();
 
-            ViewBag.Genres = new SelectList(genres, "GenreID", "GenreName");
-
-
-
-            ViewData["MainGenreID"] = new SelectList(_context.Genre, "GenreID", "GenreID", performer.MainGenreID);
-            //ViewData["PerformerTypeID"] = new SelectList(_context.PerformerType, "PerformerTypeID", "PerformerTypeID", performer.PerformerTypeID);
-
-            var performerTypes = _context.PerformerType
-            .Select(pt => new PerformerTypeViewModel
-            {
-                PerformerTypeID = pt.PerformerTypeID,
-                TypeName = pt.TypeName
-            }).ToList();
-
             ViewBag.PerformerTypes = new SelectList(performerTypes, "PerformerTypeID", "TypeName");
-
-            ViewData["SecondaryGenreID"] = new SelectList(_context.Genre, "GenreID", "GenreID", performer.SecondaryGenreID);
+            ViewBag.Genres = new SelectList(genres, "GenreID", "GenreName");
+            ViewBag.Countries = new SelectList(_context.Country.Select(c => new { c.CountryCode, c.CountryName }), "CountryCode", "CountryName");
             return View(performer);
         }
 
@@ -163,7 +144,7 @@ namespace WebApplication2.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("PerformerID,PerformerTypeID,Name,Description,MainGenreID,SecondaryGenreID")] Performer performer)
+        public async Task<IActionResult> Edit(int id, [Bind("PerformerID,PerformerTypeID,Name,Description,MainGenreID,SecondaryGenreID,CountryCode")] Performer performer)
         {
             if (id != performer.PerformerID)
             {
@@ -190,9 +171,24 @@ namespace WebApplication2.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["MainGenreID"] = new SelectList(_context.Genre, "GenreID", "GenreID", performer.MainGenreID);
-            ViewData["PerformerTypeID"] = new SelectList(_context.PerformerType, "PerformerTypeID", "PerformerTypeID", performer.PerformerTypeID);
-            ViewData["SecondaryGenreID"] = new SelectList(_context.Genre, "GenreID", "GenreID", performer.SecondaryGenreID);
+
+            var performerTypes = _context.PerformerType
+                .Select(pt => new PerformerTypeViewModel
+                {
+                    PerformerTypeID = pt.PerformerTypeID,
+                    TypeName = pt.TypeName
+                }).ToList();
+
+            var genres = _context.Genre
+                .Select(gn => new GenreViewModel
+                {
+                    GenreID = gn.GenreID,
+                    GenreName = gn.GenreName
+                }).ToList();
+
+            ViewBag.PerformerTypes = new SelectList(performerTypes, "PerformerTypeID", "TypeName");
+            ViewBag.Genres = new SelectList(genres, "GenreID", "GenreName");
+            ViewBag.Countries = new SelectList(_context.Country.Select(c => new { c.CountryCode, c.CountryName }), "CountryCode", "CountryName");
             return View(performer);
         }
 

@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WebApplication2.Models
@@ -7,12 +9,14 @@ namespace WebApplication2.Models
     {
         [Key]
         public int TrackID { get; set; }
-        public TimeSpan? Length { get; set; }
-        public bool? IsSong { get; set; }
+
+        [Required]
         public string Title { get; set; }
 
-
+        public TimeSpan? Length { get; set; }
+        public bool? IsSong { get; set; }
         public string? Lyrics { get; set; }
+
 
         [ForeignKey("Performer")]
         public int? GuestID { get; set; }
@@ -23,13 +27,17 @@ namespace WebApplication2.Models
         public virtual Performer? SecondGuest { get; set; }
 
         [ForeignKey("Language")]
-        public string? LanguageCode{ get; set; }
+        public string? LanguageCode { get; set; }
         public virtual Language? Language { get; set; }
 
         [ForeignKey("Scale")]
         public int? ScaleID { get; set; }
         public virtual Scale? Scale { get; set; }
 
-        public int BPM;
+        public int? BPM{ get; set; }
+
+        public virtual ICollection<ReleaseTrack> ReleaseTracks { get; set; } = new List<ReleaseTrack>();
+        public virtual ICollection<TrackPerformer> TrackPerformers { get; set; } = new List<TrackPerformer>();
+
     }
 }

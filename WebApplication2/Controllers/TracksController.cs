@@ -23,8 +23,15 @@ namespace WebApplication2.Controllers
         // GET: Tracks
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Track.Include(t => t.Language).Include(t => t.Scale).Include(t => t.SecondGuest);
-            return View(await applicationDbContext.ToListAsync());
+            var tracks = await _context.Track
+         /*       .Include(t => t.Language)
+                .Include(t => t.Scale)
+                .Include(t => t.MainGuest)
+                .Include(t => t.SecondGuest)*/
+                .AsNoTracking()
+                .ToListAsync();
+
+            return View(tracks);
         }
 
         // GET: Tracks/Details/5
@@ -38,6 +45,7 @@ namespace WebApplication2.Controllers
             var track = await _context.Track
                 .Include(t => t.Language)
                 .Include(t => t.Scale)
+                .Include(t => t.MainGuest)
                 .Include(t => t.SecondGuest)
                 .FirstOrDefaultAsync(m => m.TrackID == id);
             if (track == null)
@@ -51,19 +59,16 @@ namespace WebApplication2.Controllers
         // GET: Tracks/Create
         public IActionResult Create()
         {
-
-            //ViewData["LanguageCode"] = new SelectList(_context.Language, "LanguageCode", "LanguageCode");
-            //ViewData["ScaleID"] = new SelectList(_context.Scale, "ScaleId", "ScaleId");
-            //ViewData["SecondGuestID"] = new SelectList(_context.Performer, "PerformerID", "PerformerID");
+            ViewBag.Guests = new SelectList(_context.Performer.Select(p => new { p.PerformerID, p.Name }), "PerformerID", "Name");
+            ViewBag.Languages = new SelectList(_context.Language.Select(l => new { l.LanguageCode, l.LanguageName }), "LanguageCode", "LanguageName");
+            ViewBag.Scales = new SelectList(_context.Scale.Select(s => new { s.ScaleId, s.Name }), "ScaleId", "Name");
             return View();
         }
 
         // POST: Tracks/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("TrackID,Length,IsSong,Title,Lyrics,GuestID,SecondGuestID,LanguageCode,ScaleId")] Track track)
+        public async Task<IActionResult> Create([Bind("TrackID,Title,Length,IsSong,Lyrics,GuestID,SecondGuestID,LanguageCode,ScaleID")] Track track)
         {
             if (ModelState.IsValid)
             {
@@ -72,10 +77,9 @@ namespace WebApplication2.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-           
-            //ViewData["LanguageCode"] = new SelectList(_context.Language, "LanguageCode", "LanguageCode", track.LanguageCode);
-            //ViewData["ScaleID"] = new SelectList(_context.Scale, "ScaleId", "ScaleId", track.ScaleID);
-            //ViewData["SecondGuestID"] = new SelectList(_context.Performer, "PerformerID", "PerformerID", track.SecondGuestID);
+            ViewBag.Guests = new SelectList(_context.Performer.Select(p => new { p.PerformerID, p.Name }), "PerformerID", "Name");
+            ViewBag.Languages = new SelectList(_context.Language.Select(l => new { l.LanguageCode, l.LanguageName }), "LanguageCode", "LanguageName");
+            ViewBag.Scales = new SelectList(_context.Scale.Select(s => new { s.ScaleId, s.Name }), "ScaleId", "Name");
             return View(track);
         }
 
@@ -90,6 +94,7 @@ namespace WebApplication2.Controllers
             var track = await _context.Track
                 .Include(t => t.Language)
                 .Include(t => t.Scale)
+                .Include(t => t.MainGuest)
                 .Include(t => t.SecondGuest)
                 .FirstOrDefaultAsync(m => m.TrackID == id);
 
@@ -98,7 +103,6 @@ namespace WebApplication2.Controllers
                 return NotFound();
             }
 
-            // Load initial data for dropdowns
             ViewBag.Guests = new SelectList(_context.Performer.Select(p => new { p.PerformerID, p.Name }), "PerformerID", "Name");
             ViewBag.Languages = new SelectList(_context.Language.Select(l => new { l.LanguageCode, l.LanguageName }), "LanguageCode", "LanguageName");
             ViewBag.Scales = new SelectList(_context.Scale.Select(s => new { s.ScaleId, s.Name }), "ScaleId", "Name");
@@ -107,11 +111,9 @@ namespace WebApplication2.Controllers
         }
 
         // POST: Tracks/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("TrackID,Length,IsSong,Title,Lyrics,GuestID,SecondGuestID,LanguageCode,ScaleID")] Track track)
+        public async Task<IActionResult> Edit(int id, [Bind("TrackID,Title,Length,IsSong,Lyrics,GuestID,SecondGuestID,LanguageCode,ScaleID")] Track track)
         {
             if (id != track.TrackID)
             {
@@ -139,10 +141,9 @@ namespace WebApplication2.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-
-            //ViewData["LanguageCode"] = new SelectList(_context.Language, "LanguageCode", "LanguageCode", track.LanguageCode);
-            //ViewData["ScaleID"] = new SelectList(_context.Scale, "ScaleId", "ScaleId", track.ScaleID);
-            //ViewData["SecondGuestID"] = new SelectList(_context.Performer, "PerformerID", "PerformerID", track.SecondGuestID);
+            ViewBag.Guests = new SelectList(_context.Performer.Select(p => new { p.PerformerID, p.Name }), "PerformerID", "Name");
+            ViewBag.Languages = new SelectList(_context.Language.Select(l => new { l.LanguageCode, l.LanguageName }), "LanguageCode", "LanguageName");
+            ViewBag.Scales = new SelectList(_context.Scale.Select(s => new { s.ScaleId, s.Name }), "ScaleId", "Name");
             return View(track);
         }
 
