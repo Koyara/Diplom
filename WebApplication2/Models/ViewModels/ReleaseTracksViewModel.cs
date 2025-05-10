@@ -8,7 +8,7 @@ namespace WebApplication2.Models.ViewModels
         public string ReleaseTitle { get; set; }
 
         [Display(Name = "Search Tracks")]
-        public string SearchTerm { get; set; }
+        public string? SearchTerm { get; set; }
 
         public List<ReleaseTracksTrackViewModel> AvailableTracks { get; set; } = new List<ReleaseTracksTrackViewModel>();
         public List<int> SelectedTrackIds { get; set; } = new List<int>();

@@ -18,9 +18,10 @@ namespace WebApplication2.Models.ViewModels
 
         // Track management
         public List<ReleaseCreateTrackViewModel> AvailableTracks { get; set; } = new List<ReleaseCreateTrackViewModel>();
-        public List<int> SelectedTrackIds { get; set; } = new List<int>();
+        //public List<int> SelectedTrackIds { get; set; } = new List<int>();
+        public string SelectedTrackIds { get; set; } = string.Empty;
         public List<ReleaseCreateTrackViewModel> CurrentTracks { get; set; } = new List<ReleaseCreateTrackViewModel>();
-        public string SearchTerm { get; set; }
+        public string SearchTerm { get; set; } = string.Empty;
     }
 
     public class ReleaseCreateTrackViewModel

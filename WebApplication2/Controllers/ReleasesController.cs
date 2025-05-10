@@ -36,7 +36,17 @@ namespace WebApplication2.Controllers
             }
 
             var release = await _context.Release
+                .Include(r => r.MainGenre)
+                .Include(r => r.SecondGenre)
+                .Include(r => r.ReleaseType)
+                .Include(r => r.ReleasePerformers)
+                    .ThenInclude(rp => rp.Performer)
+                .Include(r => r.ReleaseTracks)
+                    .ThenInclude(rt => rt.Track)
+                        .ThenInclude(t => t.TrackPerformers)
+                            .ThenInclude(tp => tp.Performer)
                 .FirstOrDefaultAsync(m => m.ReleaseID == id);
+
             if (release == null)
             {
                 return NotFound();
@@ -95,7 +105,7 @@ namespace WebApplication2.Controllers
             System.Diagnostics.Debug.WriteLine($"MainGenreCode: {viewModel.MainGenreCode}");
             System.Diagnostics.Debug.WriteLine($"SecondGenreCode: {viewModel.SecondGenreCode}");
             System.Diagnostics.Debug.WriteLine($"ReleaseTypeID: {viewModel.ReleaseTypeID}");
-            System.Diagnostics.Debug.WriteLine($"SelectedTrackIds: {string.Join(",", viewModel.SelectedTrackIds ?? new List<int>())}");
+            System.Diagnostics.Debug.WriteLine($"SelectedTrackIds: {viewModel.SelectedTrackIds}");
 
             // Log ModelState errors
             if (!ModelState.IsValid)
@@ -175,11 +185,15 @@ namespace WebApplication2.Controllers
                     System.Diagnostics.Debug.WriteLine($"Release created with ID: {release.ReleaseID}");
 
                     // Add selected tracks to the release
-                    if (viewModel.SelectedTrackIds != null && viewModel.SelectedTrackIds.Any())
+                    if (!string.IsNullOrEmpty(viewModel.SelectedTrackIds))
                     {
-                        System.Diagnostics.Debug.WriteLine($"Adding {viewModel.SelectedTrackIds.Count} tracks to release...");
+                        var trackIds = viewModel.SelectedTrackIds.Split(',')
+                            .Select(id => int.Parse(id.Trim()))
+                            .ToList();
+
+                        System.Diagnostics.Debug.WriteLine($"Adding {trackIds.Count} tracks to release...");
                         var trackNumber = 1;
-                        foreach (var trackId in viewModel.SelectedTrackIds)
+                        foreach (var trackId in trackIds)
                         {
                             _context.ReleaseTrack.Add(new ReleaseTrack
                             {

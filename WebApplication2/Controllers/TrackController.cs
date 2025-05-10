@@ -56,7 +56,8 @@ namespace WebApplication2.Controllers
                 var track = new Track
                 {
                     Title = viewModel.Title,
-                    Length = viewModel.Length
+                    Length = viewModel.Length,
+                    BPM = viewModel.BPM
                 };
 
                 _context.Add(track);
@@ -180,6 +181,7 @@ namespace WebApplication2.Controllers
 
                     track.Title = viewModel.Title;
                     track.Length = viewModel.Length;
+                    track.BPM = viewModel.BPM;
 
                     // Handle release assignment
                     var currentReleaseTrack = track.ReleaseTracks.FirstOrDefault();

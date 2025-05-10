@@ -15,6 +15,10 @@ namespace WebApplication2.Models.ViewModels
         [Display(Name = "Length")]
         public TimeSpan? Length { get; set; }
 
+        [Display(Name = "BPM")]
+        [Range(1, 240)]
+        public int? BPM { get; set; }
+
         [Display(Name = "Release")]
         public int? ReleaseID { get; set; }
 
