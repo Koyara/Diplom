@@ -3,8 +3,10 @@ using System.Collections.Generic;
 
 namespace WebApplication2.Models.ViewModels
 {
-    public class ReleaseCreateViewModel
+    public class ReleaseEditViewModel
     {
+        public int ReleaseID { get; set; }
+
         [Required]
         public string Title { get; set; }
 
@@ -21,18 +23,8 @@ namespace WebApplication2.Models.ViewModels
 
         // Track management
         public List<ReleaseCreateTrackViewModel> AvailableTracks { get; set; } = new List<ReleaseCreateTrackViewModel>();
-        //public List<int> SelectedTrackIds { get; set; } = new List<int>();
         public string SelectedTrackIds { get; set; } = string.Empty;
         public List<ReleaseCreateTrackViewModel> CurrentTracks { get; set; } = new List<ReleaseCreateTrackViewModel>();
         public string SearchTerm { get; set; } = string.Empty;
-    }
-
-    public class ReleaseCreateTrackViewModel
-    {
-        public int TrackID { get; set; }
-        public string Title { get; set; }
-        public string PerformerName { get; set; }
-        public TimeSpan? Length { get; set; }
-        public bool IsSelected { get; set; }
     }
 } 

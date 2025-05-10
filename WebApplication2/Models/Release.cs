@@ -16,6 +16,9 @@ namespace WebApplication2.Models
         [Required]
         public DateOnly ReleaseDate { get; set; }
 
+        public string? Description { get; set; }
+
+
         [ForeignKey("Genre")]
         public int? MainGenreCode { get; set; }
         public virtual Genre? MainGenre { get; set; }

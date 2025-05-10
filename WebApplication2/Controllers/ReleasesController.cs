@@ -105,6 +105,7 @@ namespace WebApplication2.Controllers
             System.Diagnostics.Debug.WriteLine($"MainGenreCode: {viewModel.MainGenreCode}");
             System.Diagnostics.Debug.WriteLine($"SecondGenreCode: {viewModel.SecondGenreCode}");
             System.Diagnostics.Debug.WriteLine($"ReleaseTypeID: {viewModel.ReleaseTypeID}");
+            System.Diagnostics.Debug.WriteLine($"Description: {viewModel.Description}");
             System.Diagnostics.Debug.WriteLine($"SelectedTrackIds: {viewModel.SelectedTrackIds}");
 
             // Log ModelState errors
@@ -144,8 +145,11 @@ namespace WebApplication2.Controllers
                     ReleaseDate = viewModel.ReleaseDate,
                     MainGenreCode = viewModel.MainGenreCode,
                     SecondGenreCode = viewModel.SecondGenreCode,
-                    ReleaseTypeID = viewModel.ReleaseTypeID
+                    ReleaseTypeID = viewModel.ReleaseTypeID,
+                    Description = viewModel.Description
                 };
+
+                System.Diagnostics.Debug.WriteLine($"Creating release with Description: '{release.Description}'");
 
                 if (ReleaseCover != null && ReleaseCover.Length > 0)
                 {
@@ -276,6 +280,26 @@ namespace WebApplication2.Controllers
                 return NotFound();
             }
 
+            // Debug logging
+            System.Diagnostics.Debug.WriteLine("Edit POST - ModelState.IsValid: " + ModelState.IsValid);
+            foreach (var modelStateEntry in ModelState.Values)
+            {
+                foreach (var error in modelStateEntry.Errors)
+                {
+                    System.Diagnostics.Debug.WriteLine("ModelState Error: " + error.ErrorMessage);
+                }
+            }
+
+            System.Diagnostics.Debug.WriteLine($"Edit POST - ReleaseID: {release.ReleaseID}");
+            System.Diagnostics.Debug.WriteLine($"Edit POST - Title: {release.Title}");
+            System.Diagnostics.Debug.WriteLine($"Edit POST - Description: {release.Description}");
+            System.Diagnostics.Debug.WriteLine($"Edit POST - ReleaseDate: {release.ReleaseDate}");
+            System.Diagnostics.Debug.WriteLine($"Edit POST - MainGenreCode: {release.MainGenreCode}");
+            System.Diagnostics.Debug.WriteLine($"Edit POST - SecondGenreCode: {release.SecondGenreCode}");
+            System.Diagnostics.Debug.WriteLine($"Edit POST - ReleaseTypeID: {release.ReleaseTypeID}");
+            System.Diagnostics.Debug.WriteLine($"Edit POST - ReleaseCover length: {release.ReleaseCover?.Length ?? 0}");
+            System.Diagnostics.Debug.WriteLine($"Edit POST - New ReleaseCover file: {ReleaseCover?.FileName ?? "null"}");
+
             if (ModelState.IsValid)
             {
                 try
@@ -292,8 +316,9 @@ namespace WebApplication2.Controllers
                     existingRelease.MainGenreCode = release.MainGenreCode;
                     existingRelease.SecondGenreCode = release.SecondGenreCode;
                     existingRelease.ReleaseTypeID = release.ReleaseTypeID;
+                    existingRelease.Description = release.Description;
 
-                    // Handle cover image upload
+                    // Only update cover if a new one was provided
                     if (ReleaseCover != null && ReleaseCover.Length > 0)
                     {
                         // Validate file type
@@ -324,9 +349,15 @@ namespace WebApplication2.Controllers
                             }
                         }
                     }
+                    else
+                    {
+                        // Keep the existing cover image
+                        existingRelease.ReleaseCover = release.ReleaseCover;
+                    }
 
                     _context.Update(existingRelease);
                     await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -339,7 +370,6 @@ namespace WebApplication2.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
             }
 
             // If we got this far, something failed, redisplay form
