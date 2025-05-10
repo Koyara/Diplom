@@ -21,6 +21,9 @@ namespace WebApplication2.Models.ViewModels
         public int? ReleaseTypeID { get; set; }
         public byte[]? ReleaseCover { get; set; }
 
+        //
+        public string? ExistingCoverBase64 { get; set; }
+
         // Track management
         public List<ReleaseCreateTrackViewModel> AvailableTracks { get; set; } = new List<ReleaseCreateTrackViewModel>();
         public string SelectedTrackIds { get; set; } = string.Empty;

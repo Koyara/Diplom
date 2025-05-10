@@ -243,7 +243,13 @@ namespace WebApplication2.Controllers
                 return NotFound();
             }
 
-            var release = await _context.Release.FindAsync(id);
+            var release = await _context.Release
+                .Include(r => r.ReleaseTracks)
+                    .ThenInclude(rt => rt.Track)
+                        .ThenInclude(t => t.TrackPerformers)
+                            .ThenInclude(tp => tp.Performer)
+                .FirstOrDefaultAsync(r => r.ReleaseID == id);
+
             if (release == null)
             {
                 return NotFound();
@@ -267,92 +273,128 @@ namespace WebApplication2.Controllers
 
             ViewBag.ReleaseTypes = new SelectList(releasetypes, "ReleaseTypeID", "ReleaseTypeName");
 
-            return View(release);
+            var viewModel = new ReleaseEditViewModel
+            {
+                ReleaseID = release.ReleaseID,
+                Title = release.Title,
+                Description = release.Description,
+                ReleaseDate = release.ReleaseDate,
+                MainGenreCode = release.MainGenreCode,
+                SecondGenreCode = release.SecondGenreCode,
+                ReleaseTypeID = release.ReleaseTypeID,
+                ExistingCoverBase64 = release.ReleaseCover != null ? 
+                    Convert.ToBase64String(release.ReleaseCover) : null,
+
+                CurrentTracks = release.ReleaseTracks
+                    .OrderBy(rt => rt.TrackNumber)
+                    .Select(rt => new ReleaseCreateTrackViewModel
+                    {
+                        TrackID = rt.Track.TrackID,
+                        Title = rt.Track.Title,
+                        PerformerName = rt.Track.TrackPerformers.Select(tp => tp.Performer.Name).FirstOrDefault() ?? "Unknown",
+                        Length = rt.Track.Length
+                    }).ToList(),
+                AvailableTracks = await _context.Track
+                    .Include(t => t.TrackPerformers)
+                        .ThenInclude(tp => tp.Performer)
+                    .Where(t => !release.ReleaseTracks.Select(rt => rt.TrackID).Contains(t.TrackID))
+                    .Select(t => new ReleaseCreateTrackViewModel
+                    {
+                        TrackID = t.TrackID,
+                        Title = t.Title,
+                        PerformerName = t.TrackPerformers.Select(tp => tp.Performer.Name).FirstOrDefault() ?? "Unknown",
+                        Length = t.Length
+                    })
+                    .ToListAsync()
+            };
+
+            return View(viewModel);
         }
 
         // POST: Releases/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, Release release, IFormFile ReleaseCover)
+        public async Task<IActionResult> Edit(int id, ReleaseEditViewModel viewModel)
         {
-            if (id != release.ReleaseID)
+            if (id != viewModel.ReleaseID)
             {
                 return NotFound();
             }
-
-            // Debug logging
-            System.Diagnostics.Debug.WriteLine("Edit POST - ModelState.IsValid: " + ModelState.IsValid);
-            foreach (var modelStateEntry in ModelState.Values)
-            {
-                foreach (var error in modelStateEntry.Errors)
-                {
-                    System.Diagnostics.Debug.WriteLine("ModelState Error: " + error.ErrorMessage);
-                }
-            }
-
-            System.Diagnostics.Debug.WriteLine($"Edit POST - ReleaseID: {release.ReleaseID}");
-            System.Diagnostics.Debug.WriteLine($"Edit POST - Title: {release.Title}");
-            System.Diagnostics.Debug.WriteLine($"Edit POST - Description: {release.Description}");
-            System.Diagnostics.Debug.WriteLine($"Edit POST - ReleaseDate: {release.ReleaseDate}");
-            System.Diagnostics.Debug.WriteLine($"Edit POST - MainGenreCode: {release.MainGenreCode}");
-            System.Diagnostics.Debug.WriteLine($"Edit POST - SecondGenreCode: {release.SecondGenreCode}");
-            System.Diagnostics.Debug.WriteLine($"Edit POST - ReleaseTypeID: {release.ReleaseTypeID}");
-            System.Diagnostics.Debug.WriteLine($"Edit POST - ReleaseCover length: {release.ReleaseCover?.Length ?? 0}");
-            System.Diagnostics.Debug.WriteLine($"Edit POST - New ReleaseCover file: {ReleaseCover?.FileName ?? "null"}");
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    var existingRelease = await _context.Release.FindAsync(id);
+                    var existingRelease = await _context.Release
+                        .Include(r => r.ReleaseTracks)
+                        .FirstOrDefaultAsync(r => r.ReleaseID == id);
+
                     if (existingRelease == null)
                     {
                         return NotFound();
                     }
 
                     // Update basic properties
-                    existingRelease.Title = release.Title;
-                    existingRelease.ReleaseDate = release.ReleaseDate;
-                    existingRelease.MainGenreCode = release.MainGenreCode;
-                    existingRelease.SecondGenreCode = release.SecondGenreCode;
-                    existingRelease.ReleaseTypeID = release.ReleaseTypeID;
-                    existingRelease.Description = release.Description;
+                    existingRelease.Title = viewModel.Title;
+                    existingRelease.ReleaseDate = viewModel.ReleaseDate;
+                    existingRelease.MainGenreCode = viewModel.MainGenreCode;
+                    existingRelease.SecondGenreCode = viewModel.SecondGenreCode;
+                    existingRelease.ReleaseTypeID = viewModel.ReleaseTypeID;
+                    existingRelease.Description = viewModel.Description;
 
-                    // Only update cover if a new one was provided
-                    if (ReleaseCover != null && ReleaseCover.Length > 0)
+                    // Update tracks
+                    var trackIds = !string.IsNullOrEmpty(viewModel.SelectedTrackIds) 
+                        ? viewModel.SelectedTrackIds.Split(',')
+                            .Where(id => !string.IsNullOrWhiteSpace(id))
+                            .Select(id => int.Parse(id.Trim()))
+                            .ToList()
+                        : new List<int>();
+
+                    // Get current track IDs
+                    var currentTrackIds = existingRelease.ReleaseTracks.Select(rt => rt.TrackID).ToList();
+
+                    // Find tracks to remove (in current but not in new selection)
+                    var tracksToRemove = existingRelease.ReleaseTracks
+                        .Where(rt => !trackIds.Contains(rt.TrackID))
+                        .ToList();
+
+                    // Find tracks to add (in new selection but not in current)
+                    var tracksToAdd = trackIds
+                        .Where(id => !currentTrackIds.Contains(id))
+                        .ToList();
+
+                    // Remove tracks that are no longer selected
+                    if (tracksToRemove.Any())
                     {
-                        // Validate file type
-                        var fileExtension = Path.GetExtension(ReleaseCover.FileName).ToLower();
-                        if (fileExtension != ".png" && fileExtension != ".jpg" && fileExtension != ".jpeg")
+                        _context.ReleaseTrack.RemoveRange(tracksToRemove);
+                    }
+
+                    // Add new tracks
+                    if (tracksToAdd.Any())
+                    {
+                        var maxTrackNumber = existingRelease.ReleaseTracks.Any() ? 
+                            existingRelease.ReleaseTracks.Max(rt => rt.TrackNumber) : 0;
+
+                        foreach (var trackId in tracksToAdd)
                         {
-                            ModelState.AddModelError("ReleaseCover", "Invalid file type. Please upload a PNG or JPEG image.");
-                            return View(release);
-                        }
-
-                        // Check if the image has a 1:1 aspect ratio
-                        using (var memoryStream = new MemoryStream())
-                        {
-                            await ReleaseCover.CopyToAsync(memoryStream);
-                            existingRelease.ReleaseCover = memoryStream.ToArray();
-
-                            // Reset the memory stream position to the beginning
-                            memoryStream.Position = 0;
-
-                            // Use System.Drawing to check the image dimensions
-                            using (var image = Image.FromStream(memoryStream))
+                            _context.ReleaseTrack.Add(new ReleaseTrack
                             {
-                                if (image.Width != image.Height)
-                                {
-                                    ModelState.AddModelError("ReleaseCover", "Picture has to be 1:1 ratio.");
-                                    return View(release);
-                                }
-                            }
+                                ReleaseID = existingRelease.ReleaseID,
+                                TrackID = trackId,
+                                TrackNumber = ++maxTrackNumber
+                            });
                         }
                     }
-                    else
+
+                    // Update track numbers for all tracks
+                    var allTracks = await _context.ReleaseTrack
+                        .Where(rt => rt.ReleaseID == existingRelease.ReleaseID)
+                        .OrderBy(rt => rt.TrackNumber)
+                        .ToListAsync();
+
+                    for (int i = 0; i < allTracks.Count; i++)
                     {
-                        // Keep the existing cover image
-                        existingRelease.ReleaseCover = release.ReleaseCover;
+                        allTracks[i].TrackNumber = i + 1;
                     }
 
                     _context.Update(existingRelease);
@@ -361,7 +403,7 @@ namespace WebApplication2.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!ReleaseExists(release.ReleaseID))
+                    if (!ReleaseExists(viewModel.ReleaseID))
                     {
                         return NotFound();
                     }
@@ -391,7 +433,7 @@ namespace WebApplication2.Controllers
 
             ViewBag.ReleaseTypes = new SelectList(releasetypes, "ReleaseTypeID", "ReleaseTypeName");
 
-            return View(release);
+            return View(viewModel);
         }
 
         // GET: Releases/Delete/5
@@ -460,6 +502,94 @@ namespace WebApplication2.Controllers
                 .ToList();
 
             return PartialView("_TrackList", tracks);
+        }
+
+        // GET: Releases/UploadCover/5
+        public async Task<IActionResult> UploadCover(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var release = await _context.Release.FindAsync(id);
+            if (release == null)
+            {
+                return NotFound();
+            }
+
+            var viewModel = new ReleaseCoverViewModel
+            {
+                ReleaseID = release.ReleaseID,
+                ReleaseTitle = release.Title,
+                ExistingCoverBase64 = release.ReleaseCover != null ? 
+                    Convert.ToBase64String(release.ReleaseCover) : null
+            };
+
+            return View(viewModel);
+        }
+
+        // POST: Releases/UploadCover/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UploadCover(int id, ReleaseCoverViewModel viewModel, IFormFile ReleaseCover)
+        {
+            if (id != viewModel.ReleaseID)
+            {
+                return NotFound();
+            }
+
+            if (ReleaseCover == null || ReleaseCover.Length == 0)
+            {
+                ModelState.AddModelError("ReleaseCover", "Please select an image to upload.");
+                return View(viewModel);
+            }
+
+            // Validate file type
+            var fileExtension = Path.GetExtension(ReleaseCover.FileName).ToLower();
+            if (fileExtension != ".png" && fileExtension != ".jpg" && fileExtension != ".jpeg")
+            {
+                ModelState.AddModelError("ReleaseCover", "Invalid file type. Please upload a PNG or JPEG image.");
+                return View(viewModel);
+            }
+
+            try
+            {
+                var release = await _context.Release.FindAsync(id);
+                if (release == null)
+                {
+                    return NotFound();
+                }
+
+                // Check if the image has a 1:1 aspect ratio
+                using (var memoryStream = new MemoryStream())
+                {
+                    await ReleaseCover.CopyToAsync(memoryStream);
+                    release.ReleaseCover = memoryStream.ToArray();
+
+                    // Reset the memory stream position to the beginning
+                    memoryStream.Position = 0;
+
+                    // Use System.Drawing to check the image dimensions
+                    using (var image = Image.FromStream(memoryStream))
+                    {
+                        if (image.Width != image.Height)
+                        {
+                            ModelState.AddModelError("ReleaseCover", "Picture has to be 1:1 ratio.");
+                            return View(viewModel);
+                        }
+                    }
+                }
+
+                _context.Update(release);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Edit), new { id = release.ReleaseID });
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", "An error occurred while uploading the cover image. Please try again.");
+                return View(viewModel);
+            }
         }
     }
 }
