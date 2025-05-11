@@ -51,15 +51,29 @@
                 </select>
                 <span asp-validation-for="CountryCode" class="text-danger"></span>
             </div>
+
             <div class="form-group">
+                @if (Model.Photo != null)
+                {
+                    <div class="mb-3">
+                        <h5>Current Photo</h5>
+                        <img src="data:image/jpeg;base64,@Convert.ToBase64String(Model.Photo)" 
+                             alt="Current Performer Photo" 
+                             class="img-thumbnail" 
+                             style="max-width: 200px; max-height: 200px;" />
+                    </div>
+                }
+                <a asp-action="UploadPhoto" asp-route-id="@Model.PerformerID" class="btn btn-info">
+                    <i class="fas fa-image"></i> Manage Photo
+                </a>
+            </div>
+
+            <div class="form-group mt-3">
                 <input type="submit" value="Save" class="btn btn-primary" />
+                <a asp-action="Index" class="btn btn-secondary">Back to List</a>
             </div>
         </form>
     </div>
-</div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
 </div>
 
 @section Scripts {

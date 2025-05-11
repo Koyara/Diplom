@@ -1,4 +1,4 @@
-﻿@model WebApplication2.Models.Performer
+﻿@model WebApplication2.Models.ViewModels.PerformerCreateViewModel
 
 @{
     ViewData["Title"] = "Create";
@@ -10,7 +10,7 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Create">
+        <form asp-action="Create" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="PerformerTypeID" class="control-label">Performer Type *</label>
@@ -50,15 +50,19 @@
                 </select>
                 <span asp-validation-for="CountryCode" class="text-danger"></span>
             </div>
+
             <div class="form-group">
+                <label for="Photo" class="control-label">Photo</label>
+                <input type="file" class="form-control" id="Photo" name="Photo" accept="image/*" />
+                <div class="form-text">Please upload a square image (1:1 ratio).</div>
+            </div>
+
+            <div class="form-group mt-3">
                 <input type="submit" value="Create" class="btn btn-primary" />
+                <a asp-action="Index" class="btn btn-secondary">Back to List</a>
             </div>
         </form>
     </div>
-</div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
 </div>
 
 @section Scripts {

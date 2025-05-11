@@ -1,0 +1,46 @@
+@model WebApplication2.Models.ViewModels.PerformerPhotoViewModel
+
+@{
+    ViewData["Title"] = "Upload Photo";
+}
+
+<h1>Upload Photo for @Model.PerformerName</h1>
+
+<hr />
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="UploadPhoto" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="PerformerID" />
+            <input type="hidden" asp-for="PerformerName" />
+
+            <div class="form-group mb-3">
+                @if (!string.IsNullOrEmpty(Model.ExistingPhotoBase64))
+                {
+                    <div class="mb-3">
+                        <h5>Current Photo</h5>
+                        <img src="data:image/jpeg;base64,@Model.ExistingPhotoBase64" 
+                             alt="Current Performer Photo" 
+                             class="img-thumbnail" 
+                             style="max-width: 200px; max-height: 200px;" />
+                    </div>
+                }
+
+                <div class="mb-3">
+                    <label for="Photo" class="form-label">Upload New Photo</label>
+                    <input type="file" class="form-control" id="Photo" name="Photo" accept="image/*" required />
+                    <div class="form-text">Please upload a square image (1:1 ratio).</div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="Upload" class="btn btn-primary" />
+                <a asp-action="Edit" asp-route-id="@Model.PerformerID" class="btn btn-secondary">Back to Edit</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+} 

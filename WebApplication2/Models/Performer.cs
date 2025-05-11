@@ -17,6 +17,9 @@ namespace WebApplication2.Models
         [Required]
         public string Name { get; set; }
 
+
+        public byte[]? Photo { get; set; }
+
         [Required]
         public string Description { get; set; }
 
