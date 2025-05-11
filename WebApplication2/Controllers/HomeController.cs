@@ -21,16 +21,76 @@ namespace WebApplication2.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index(string searchTerm, string searchType = "releases")
+        public async Task<IActionResult> Index(string searchTerm, string searchType, 
+            string language, int? minBpm, int? maxBpm, int? scale, bool? isSong, 
+            int? minLength, int? maxLength)
         {
+            ViewBag.SearchTerm = searchTerm;
+            ViewBag.SearchType = searchType;
+
+            // Set filter values for the view
+            ViewBag.SelectedLanguage = language;
+            ViewBag.MinBpm = minBpm;
+            ViewBag.MaxBpm = maxBpm;
+            ViewBag.SelectedScale = scale;
+            ViewBag.IsSong = isSong;
+            ViewBag.MinLength = minLength;
+            ViewBag.MaxLength = maxLength;
+
+            // Load filter options
+            ViewBag.Languages = await _context.Language.ToListAsync();
+            ViewBag.Scales = await _context.Scale.ToListAsync();
+
             var viewModel = new SearchResultsViewModel();
 
             if (!string.IsNullOrEmpty(searchTerm))
             {
-                searchTerm = searchTerm.ToLower();
-
-                switch (searchType.ToLower())
+                switch (searchType?.ToLower())
                 {
+                    case "tracks":
+                        var tracksQuery = _context.Track
+                            .Include(t => t.Language)
+                            .Include(t => t.Scale)
+                            .Include(t => t.TrackPerformers)
+                                .ThenInclude(tp => tp.Performer)
+                            .AsQueryable();
+
+                        // Apply filters
+                        if (!string.IsNullOrEmpty(language))
+                            tracksQuery = tracksQuery.Where(t => t.LanguageCode == language);
+                        
+                        if (minBpm.HasValue)
+                            tracksQuery = tracksQuery.Where(t => t.BPM.HasValue && t.BPM.Value >= minBpm);
+                        
+                        if (maxBpm.HasValue)
+                            tracksQuery = tracksQuery.Where(t => t.BPM.HasValue && t.BPM.Value <= maxBpm);
+                        
+                        if (scale.HasValue)
+                            tracksQuery = tracksQuery.Where(t => t.ScaleID == scale);
+                        
+                        if (isSong.HasValue)
+                            tracksQuery = tracksQuery.Where(t => t.IsSong == isSong);
+                        
+                        if (minLength.HasValue)
+                            tracksQuery = tracksQuery.Where(t => t.Length.HasValue && t.Length.Value.TotalSeconds >= minLength);
+                        
+                        if (maxLength.HasValue)
+                            tracksQuery = tracksQuery.Where(t => t.Length.HasValue && t.Length.Value.TotalSeconds <= maxLength);
+
+                        // Apply search term
+                        tracksQuery = tracksQuery.Where(t => 
+                            t.Title.Contains(searchTerm) || 
+                            t.TrackPerformers.Any(tp => tp.Performer.Name.Contains(searchTerm)));
+
+                        viewModel.Tracks = await tracksQuery.Select(t => new TrackSearchResult
+                        {
+                            TrackID = t.TrackID,
+                            Title = t.Title,
+                            ArtistName = t.TrackPerformers.FirstOrDefault() != null ? 
+                                t.TrackPerformers.First().Performer.Name : "Unknown"
+                        }).ToListAsync();
+                        break;
+
                     case "releases":
                         var releases = await _context.Release
                             .Include(r => r.ReleaseType)
@@ -81,8 +141,6 @@ namespace WebApplication2.Controllers
                 }
             }
 
-            ViewBag.SearchTerm = searchTerm;
-            ViewBag.SearchType = searchType;
             return View(viewModel);
         }
 

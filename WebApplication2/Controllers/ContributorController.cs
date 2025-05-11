@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -11,6 +12,7 @@ using WebApplication2.Models.ViewModels;
 
 namespace WebApplication2.Controllers
 {
+    [Authorize(Roles = "Editor")]
     public class ContributorController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -21,6 +23,7 @@ namespace WebApplication2.Controllers
         }
 
         // GET: Contributor
+        [Authorize(Roles = "Editor,Admin")]
         public async Task<IActionResult> Index()
         {
             var applicationDbContext = _context.Contributor.Include(c => c.Country);
@@ -47,12 +50,7 @@ namespace WebApplication2.Controllers
         }
 
         // GET: Contributor/Create
-        [HttpGet]
-        //public IActionResult GetData()
-        //{
-
-        //}
-        [HttpGet]
+        [Authorize(Roles = "Editor,Admin")]
         public IActionResult Create()
         {
             var jwt = HttpContext.Request.Headers.ToString();
@@ -86,7 +84,7 @@ namespace WebApplication2.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-
+        [Authorize(Roles = "Editor,Admin")]
         public async Task<IActionResult> Create([Bind("ContributorID,FullName,BirthDate,CountryCode,IsMale")] Contributor contributor)
         {
             if (ModelState.IsValid)
@@ -117,6 +115,7 @@ namespace WebApplication2.Controllers
         }
 
         // GET: Contributor/Edit/5
+        [Authorize(Roles = "Editor,Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -155,6 +154,7 @@ namespace WebApplication2.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Editor,Admin")]
         public async Task<IActionResult> Edit(int id, [Bind("ContributorID,FullName,BirthDate,CountryCode,IsMale")] Contributor contributor)
         {
             if (id != contributor.ContributorID)
@@ -204,6 +204,7 @@ namespace WebApplication2.Controllers
         }
 
         // GET: Contributor/Delete/5
+        [Authorize(Roles = "Editor,Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -225,6 +226,7 @@ namespace WebApplication2.Controllers
         // POST: Contributor/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Editor,Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var contributor = await _context.Contributor.FindAsync(id);

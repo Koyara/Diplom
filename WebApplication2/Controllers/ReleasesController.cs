@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using WebApplication2.Data;
 using WebApplication2.Models;
 using WebApplication2.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WebApplication2.Controllers
 {
@@ -22,6 +23,7 @@ namespace WebApplication2.Controllers
         }
 
         // GET: Releases
+        [Authorize(Roles = "Editor,Admin")]
         public async Task<IActionResult> Index(string searchString)
         {
             ViewData["CurrentFilter"] = searchString;
@@ -66,6 +68,7 @@ namespace WebApplication2.Controllers
         }
 
         // GET: Releases/Create
+        [Authorize(Roles = "Editor,Admin")]
         public IActionResult Create()
         {
             var releasetypes = _context.ReleaseType
@@ -107,6 +110,7 @@ namespace WebApplication2.Controllers
         // POST: Releases/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Editor,Admin")]
         public async Task<IActionResult> Create(ReleaseCreateViewModel viewModel, IFormFile ReleaseCover)
         {
             // Log the incoming data
@@ -246,6 +250,7 @@ namespace WebApplication2.Controllers
         }
 
         // GET: Releases/Edit/5
+        [Authorize(Roles = "Editor,Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -342,6 +347,7 @@ namespace WebApplication2.Controllers
         // POST: Releases/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Editor,Admin")]
         public async Task<IActionResult> Edit(int id, ReleaseEditViewModel viewModel)
         {
             if (id != viewModel.ReleaseID)
@@ -516,6 +522,7 @@ namespace WebApplication2.Controllers
         }
 
         // GET: Releases/Delete/5
+        [Authorize(Roles = "Editor,Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -536,6 +543,7 @@ namespace WebApplication2.Controllers
         // POST: Releases/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Editor,Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var release = await _context.Release.FindAsync(id);

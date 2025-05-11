@@ -9,6 +9,7 @@
         <div class="search-tabs">
             <button class="search-tab active" data-tab="releases">Search Releases</button>
             <button class="search-tab" data-tab="artists">Search Artists</button>
+            <button class="search-tab" data-tab="tracks">Search Tracks</button>
             <button class="search-tab" data-tab="lyrics">Search Lyrics</button>
         </div>
         
@@ -20,6 +21,68 @@
                 <button class="btn btn-primary" type="submit">
                     <i class="bi bi-search"></i> Search
                 </button>
+            </div>
+
+            <!-- Track Search Filters -->
+            <div id="trackFilters" class="track-filters" style="display: none;">
+                <div class="filters-grid">
+                    <div class="filter-group">
+                        <label for="language">Language:</label>
+                        <select name="language" id="language" class="form-control">
+                            <option value="">Any Language</option>
+                            @foreach (var lang in ViewBag.Languages)
+                            {
+                                <option value="@lang.LanguageCode" selected="@(ViewBag.SelectedLanguage == lang.LanguageCode)">
+                                    @lang.LanguageName
+                                </option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="bpm">BPM Range:</label>
+                        <div class="range-inputs">
+                            <input type="number" name="minBpm" id="minBpm" class="form-control" 
+                                   placeholder="Min" value="@ViewBag.MinBpm">
+                            <span>to</span>
+                            <input type="number" name="maxBpm" id="maxBpm" class="form-control" 
+                                   placeholder="Max" value="@ViewBag.MaxBpm">
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="scale">Scale:</label>
+                        <select name="scale" id="scale" class="form-control">
+                            <option value="">Any Scale</option>
+                            @foreach (var scale in ViewBag.Scales)
+                            {
+                                <option value="@scale.ScaleId" selected="@(ViewBag.SelectedScale == scale.ScaleId)">
+                                    @scale.Name
+                                </option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="isSong">Type:</label>
+                        <select name="isSong" id="isSong" class="form-control">
+                            <option value="">Any Type</option>
+                            <option value="true" selected="@(ViewBag.IsSong == true)">Song</option>
+                            <option value="false" selected="@(ViewBag.IsSong == false)">Instrumental</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="length">Length Range (seconds):</label>
+                        <div class="range-inputs">
+                            <input type="number" name="minLength" id="minLength" class="form-control" 
+                                   placeholder="Min" value="@ViewBag.MinLength">
+                            <span>to</span>
+                            <input type="number" name="maxLength" id="maxLength" class="form-control" 
+                                   placeholder="Max" value="@ViewBag.MaxLength">
+                        </div>
+                    </div>
+                </div>
             </div>
         </form>
     </div>
@@ -104,6 +167,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             const tabs = document.querySelectorAll('.search-tab');
             const searchTypeInput = document.getElementById('searchType');
+            const trackFilters = document.getElementById('trackFilters');
             
             tabs.forEach(tab => {
                 tab.addEventListener('click', function() {
@@ -113,8 +177,20 @@
                     this.classList.add('active');
                     // Update hidden input value
                     searchTypeInput.value = this.dataset.tab;
+                    
+                    // Show/hide track filters
+                    if (this.dataset.tab === 'tracks') {
+                        trackFilters.style.display = 'block';
+                    } else {
+                        trackFilters.style.display = 'none';
+                    }
                 });
             });
+
+            // Show track filters if tracks tab is active on page load
+            if (searchTypeInput.value === 'tracks') {
+                trackFilters.style.display = 'block';
+            }
         });
     </script>
 }

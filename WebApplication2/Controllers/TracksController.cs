@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using WebApplication2.Data;
 using WebApplication2.Models;
 using WebApplication2.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WebApplication2.Controllers
 {
@@ -21,6 +22,7 @@ namespace WebApplication2.Controllers
         }
 
         // GET: Tracks
+        [Authorize(Roles = "Editor,Admin")]
         public async Task<IActionResult> Index()
         {
             var tracks = await _context.Track
@@ -59,6 +61,7 @@ namespace WebApplication2.Controllers
         }
 
         // GET: Tracks/Create
+        [Authorize(Roles = "Editor,Admin")]
         public IActionResult Create()
         {
             ViewBag.Guests = new SelectList(_context.Performer.Select(p => new { p.PerformerID, p.Name }), "PerformerID", "Name");
@@ -70,6 +73,7 @@ namespace WebApplication2.Controllers
         // POST: Tracks/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Editor,Admin")]
         public async Task<IActionResult> Create([Bind("TrackID,Title,Length,BPM,IsSong,Lyrics,GuestID,SecondGuestID,LanguageCode,ScaleID")] Track track, int[] ProducerIDs)
         {
             if (ModelState.IsValid)
@@ -102,6 +106,7 @@ namespace WebApplication2.Controllers
         }
 
         // GET: Tracks/Edit/5
+        [Authorize(Roles = "Editor,Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -157,6 +162,7 @@ namespace WebApplication2.Controllers
         // POST: Tracks/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Editor,Admin")]
         public async Task<IActionResult> Edit(int id, [Bind("TrackID,Title,Length,BPM,IsSong,Lyrics,GuestID,SecondGuestID,LanguageCode,ScaleID")] Track track, int[] ProducerIDs)
         {
             if (id != track.TrackID)
@@ -214,6 +220,7 @@ namespace WebApplication2.Controllers
         }
 
         // GET: Tracks/Delete/5
+        [Authorize(Roles = "Editor,Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -237,6 +244,7 @@ namespace WebApplication2.Controllers
         // POST: Tracks/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Editor,Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var track = await _context.Track.FindAsync(id);

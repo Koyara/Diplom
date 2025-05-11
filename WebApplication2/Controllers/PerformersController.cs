@@ -11,6 +11,7 @@ using WebApplication2.Models.ViewModels;
 using Microsoft.AspNetCore.Http;
 using System.IO;
 using System.Drawing;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WebApplication2.Controllers
 {
@@ -24,6 +25,7 @@ namespace WebApplication2.Controllers
         }
 
         // GET: Performers
+        [Authorize(Roles = "Editor,Admin")]
         public async Task<IActionResult> Index()
         {
             var applicationDbContext = _context.Performer.Include(p => p.MainGenre).Include(p => p.PerformerType).Include(p => p.SecondaryGenre);
@@ -77,6 +79,7 @@ namespace WebApplication2.Controllers
         }
 
         // GET: Performers/Create
+        [Authorize(Roles = "Editor,Admin")]
         public IActionResult Create()
         {
             var performerTypes = _context.PerformerType
@@ -102,6 +105,7 @@ namespace WebApplication2.Controllers
         // POST: Performers/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Editor,Admin")]
         public async Task<IActionResult> Create(PerformerCreateViewModel viewModel, IFormFile Photo)
         {
             if (ModelState.IsValid)
@@ -173,6 +177,7 @@ namespace WebApplication2.Controllers
         }
 
         // GET: Performers/Edit/5
+        [Authorize(Roles = "Editor,Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -211,6 +216,7 @@ namespace WebApplication2.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Editor,Admin")]
         public async Task<IActionResult> Edit(int id, [Bind("PerformerID,PerformerTypeID,Name,Description,MainGenreID,SecondaryGenreID,CountryCode")] Performer performer)
         {
             if (id != performer.PerformerID)
@@ -222,6 +228,14 @@ namespace WebApplication2.Controllers
             {
                 try
                 {
+                    // Get the existing performer to preserve the photo
+                    var existingPerformer = await _context.Performer.AsNoTracking().FirstOrDefaultAsync(p => p.PerformerID == id);
+                    if (existingPerformer != null)
+                    {
+                        // Preserve the existing photo
+                        performer.Photo = existingPerformer.Photo;
+                    }
+
                     _context.Update(performer);
                     await _context.SaveChangesAsync();
                 }

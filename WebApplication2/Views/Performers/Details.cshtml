@@ -168,8 +168,11 @@
         </div>
     }
 
-    <div class="performer-actions">
-        <a asp-action="Edit" asp-route-id="@Model.PerformerID" class="btn-edit">Edit Performer</a>
-        <a asp-action="Index" class="btn-back">Back to List</a>
-    </div>
+    @if (User.IsInRole("Editor") || User.IsInRole("Admin"))
+    {
+        <div class="performer-actions">
+            <a asp-action="Edit" asp-route-id="@Model.PerformerID" class="btn-edit">Edit Performer</a>
+            <a asp-action="Index" class="btn-back">Back to List</a>
+        </div>
+    }
 </div>

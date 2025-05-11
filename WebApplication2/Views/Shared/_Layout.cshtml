@@ -9,6 +9,10 @@
     <link rel="stylesheet" href="~/WebApplication2.styles.css" asp-append-version="true" />
 </head>
 <body>
+    @using Microsoft.AspNetCore.Identity
+    @inject SignInManager<IdentityUser> SignInManager
+    @inject UserManager<IdentityUser> UserManager
+
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
@@ -35,6 +39,12 @@
                         {
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Admin" asp-action="Index">Admin</a>
+                            </li>
+                        }
+                        @if (SignInManager.IsSignedIn(User) && User.IsInRole("Editor"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Editor" asp-action="Index">Editors</a>
                             </li>
                         }
                     </ul>

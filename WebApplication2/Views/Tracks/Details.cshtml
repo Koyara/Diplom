@@ -97,8 +97,11 @@
         </div>
     }
 
-    <div class="track-actions">
-        <a asp-action="Edit" asp-route-id="@Model.TrackID" class="btn-edit">Edit Track</a>
-        <a asp-action="Index" class="btn-back">Back to List</a>
-    </div>
+    @if (User.IsInRole("Editor") || User.IsInRole("Admin"))
+    {
+        <div class="track-actions">
+            <a asp-action="Edit" asp-route-id="@Model.TrackID" class="btn-edit">Edit Track</a>
+            <a asp-action="Index" class="btn-back">Back to List</a>
+        </div>
+    }
 </div>
