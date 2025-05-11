@@ -38,15 +38,40 @@ namespace WebApplication2.Controllers
                 return NotFound();
             }
 
+            // Load basic performer info
             var performer = await _context.Performer
-                .Include(p => p.MainGenre)
                 .Include(p => p.PerformerType)
+                .Include(p => p.MainGenre)
                 .Include(p => p.SecondaryGenre)
+                .AsNoTracking()
                 .FirstOrDefaultAsync(m => m.PerformerID == id);
+
             if (performer == null)
             {
                 return NotFound();
             }
+
+            // Load releases in a separate query
+            performer.ReleasePerformers = await _context.ReleasePerformer
+                .Include(rp => rp.Release)
+                    .ThenInclude(r => r.ReleaseType)
+                .Where(rp => rp.PerformerID == id)
+                .AsNoTracking()
+                .ToListAsync();
+
+            // Load tracks where performer is the main performer
+            performer.TrackPerformers = await _context.TrackPerformer
+                .Include(tp => tp.Track)
+                .Where(tp => tp.PerformerID == id)
+                .AsNoTracking()
+                .ToListAsync();
+
+            // Load tracks where performer is a producer
+            performer.ProducedTracks = await _context.TrackProducer
+                .Include(tp => tp.Track)
+                .Where(tp => tp.ProducerID == id)
+                .AsNoTracking()
+                .ToListAsync();
 
             return View(performer);
         }

@@ -24,10 +24,10 @@ namespace WebApplication2.Controllers
         public async Task<IActionResult> Index()
         {
             var tracks = await _context.Track
-         /*       .Include(t => t.Language)
+                .Include(t => t.Language)
                 .Include(t => t.Scale)
                 .Include(t => t.MainGuest)
-                .Include(t => t.SecondGuest)*/
+                .Include(t => t.SecondGuest)
                 .AsNoTracking()
                 .ToListAsync();
 
@@ -47,6 +47,8 @@ namespace WebApplication2.Controllers
                 .Include(t => t.Scale)
                 .Include(t => t.MainGuest)
                 .Include(t => t.SecondGuest)
+                .Include(t => t.TrackProducers)
+                    .ThenInclude(tp => tp.Producer)
                 .FirstOrDefaultAsync(m => m.TrackID == id);
             if (track == null)
             {
@@ -68,12 +70,28 @@ namespace WebApplication2.Controllers
         // POST: Tracks/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("TrackID,Title,Length,IsSong,Lyrics,GuestID,SecondGuestID,LanguageCode,ScaleID")] Track track)
+        public async Task<IActionResult> Create([Bind("TrackID,Title,Length,BPM,IsSong,Lyrics,GuestID,SecondGuestID,LanguageCode,ScaleID")] Track track, int[] ProducerIDs)
         {
             if (ModelState.IsValid)
             {
                 _context.Add(track);
                 await _context.SaveChangesAsync();
+
+                // Add producer relationships
+                if (ProducerIDs != null && ProducerIDs.Any())
+                {
+                    foreach (var producerId in ProducerIDs)
+                    {
+                        var trackProducer = new TrackProducer
+                        {
+                            TrackID = track.TrackID,
+                            ProducerID = producerId
+                        };
+                        _context.TrackProducer.Add(trackProducer);
+                    }
+                    await _context.SaveChangesAsync();
+                }
+
                 return RedirectToAction(nameof(Index));
             }
 
@@ -96,6 +114,7 @@ namespace WebApplication2.Controllers
                 .Include(t => t.Scale)
                 .Include(t => t.MainGuest)
                 .Include(t => t.SecondGuest)
+                .Include(t => t.TrackProducers)
                 .FirstOrDefaultAsync(m => m.TrackID == id);
 
             if (track == null)
@@ -103,9 +122,34 @@ namespace WebApplication2.Controllers
                 return NotFound();
             }
 
-            ViewBag.Guests = new SelectList(_context.Performer.Select(p => new { p.PerformerID, p.Name }), "PerformerID", "Name");
-            ViewBag.Languages = new SelectList(_context.Language.Select(l => new { l.LanguageCode, l.LanguageName }), "LanguageCode", "LanguageName");
-            ViewBag.Scales = new SelectList(_context.Scale.Select(s => new { s.ScaleId, s.Name }), "ScaleId", "Name");
+            // Create SelectLists with selected values
+            ViewBag.Guests = new SelectList(
+                _context.Performer.Select(p => new { p.PerformerID, p.Name }), 
+                "PerformerID", 
+                "Name", 
+                track.GuestID
+            );
+            
+            ViewBag.SecondGuests = new SelectList(
+                _context.Performer.Select(p => new { p.PerformerID, p.Name }), 
+                "PerformerID", 
+                "Name", 
+                track.SecondGuestID
+            );
+            
+            ViewBag.Languages = new SelectList(
+                _context.Language.Select(l => new { l.LanguageCode, l.LanguageName }), 
+                "LanguageCode", 
+                "LanguageName", 
+                track.LanguageCode
+            );
+            
+            ViewBag.Scales = new SelectList(
+                _context.Scale.Select(s => new { s.ScaleId, s.Name }), 
+                "ScaleId", 
+                "Name", 
+                track.ScaleID
+            );
 
             return View(track);
         }
@@ -113,7 +157,7 @@ namespace WebApplication2.Controllers
         // POST: Tracks/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("TrackID,Title,Length,IsSong,Lyrics,GuestID,SecondGuestID,LanguageCode,ScaleID")] Track track)
+        public async Task<IActionResult> Edit(int id, [Bind("TrackID,Title,Length,BPM,IsSong,Lyrics,GuestID,SecondGuestID,LanguageCode,ScaleID")] Track track, int[] ProducerIDs)
         {
             if (id != track.TrackID)
             {
@@ -124,7 +168,29 @@ namespace WebApplication2.Controllers
             {
                 try
                 {
+                    // Update track
                     _context.Update(track);
+
+                    // Remove existing producer relationships
+                    var existingProducers = await _context.TrackProducer
+                        .Where(tp => tp.TrackID == track.TrackID)
+                        .ToListAsync();
+                    _context.TrackProducer.RemoveRange(existingProducers);
+
+                    // Add new producer relationships
+                    if (ProducerIDs != null && ProducerIDs.Any())
+                    {
+                        foreach (var producerId in ProducerIDs)
+                        {
+                            var trackProducer = new TrackProducer
+                            {
+                                TrackID = track.TrackID,
+                                ProducerID = producerId
+                            };
+                            _context.TrackProducer.Add(trackProducer);
+                        }
+                    }
+
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -212,6 +278,17 @@ namespace WebApplication2.Controllers
             var scales = _context.Scale.Select(s => new { s.ScaleId, s.Name }).ToList();
             var selectList = new SelectList(scales, "ScaleId", "Name"); // Ensure property names match
             return PartialView("_ScaleSelectList", selectList);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> LoadTrackProducers(int id)
+        {
+            var producerIds = await _context.TrackProducer
+                .Where(tp => tp.TrackID == id)
+                .Select(tp => tp.ProducerID)
+                .ToListAsync();
+            
+            return Json(producerIds);
         }
     }
 }

@@ -48,23 +48,23 @@
 
             <div class="form-group mb-3">
                 <label asp-for="GuestID" class="control-label">Main Guest</label>
-                <select asp-for="GuestID" class="form-control select2" id="GuestID">
-                    <option value="">-- Search for a guest --</option>
+                <select asp-for="GuestID" class="form-control select2" asp-items="ViewBag.Guests">
+                    <option value="">-- Select Main Guest --</option>
                 </select>
                 <span asp-validation-for="GuestID" class="text-danger"></span>
             </div>
 
             <div class="form-group mb-3">
                 <label asp-for="SecondGuestID" class="control-label">Second Guest</label>
-                <select asp-for="SecondGuestID" class="form-control select2" id="SecondGuestID">
-                    <option value="">-- Search for a guest --</option>
+                <select asp-for="SecondGuestID" class="form-control select2" asp-items="ViewBag.SecondGuests">
+                    <option value="">-- Select Second Guest --</option>
                 </select>
                 <span asp-validation-for="SecondGuestID" class="text-danger"></span>
             </div>
 
             <div class="form-group mb-3">
                 <label asp-for="LanguageCode" class="control-label">Language</label>
-                <select asp-for="LanguageCode" class="form-control select2" id="LanguageCode">
+                <select asp-for="LanguageCode" class="form-control select2" asp-items="ViewBag.Languages">
                     <option value="">-- Select Language --</option>
                 </select>
                 <span asp-validation-for="LanguageCode" class="text-danger"></span>
@@ -76,6 +76,14 @@
                     <option value="">-- Select Scale --</option>
                 </select>
                 <span asp-validation-for="ScaleID" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label class="control-label">Producers</label>
+                <select class="form-control select2" id="ProducerIDs" name="ProducerIDs" multiple>
+                    <option value="">-- Search for producers --</option>
+                </select>
+                <span class="text-danger"></span>
             </div>
 
             <div class="form-group">
@@ -101,8 +109,18 @@
                 allowClear: true
             });
 
+            // Initialize Select2 for producers with multiple selection
+            $('#ProducerIDs').select2({
+                width: '100%',
+                placeholder: 'Search for producers...',
+                allowClear: true,
+                multiple: true,
+                tags: false
+            });
+
             // Load initial data
             loadGuests();
+            loadProducers();
             loadLanguages();
             loadScales();
 
@@ -110,6 +128,16 @@
                 $.get('@Url.Action("LoadGuests")', function(data) {
                     $('#GuestID').html('<option value="">-- Search for a guest --</option>' + data);
                     $('#SecondGuestID').html('<option value="">-- Search for a guest --</option>' + data);
+                });
+            }
+
+            function loadProducers() {
+                $.get('@Url.Action("LoadGuests")', function(data) {
+                    $('#ProducerIDs').html('<option value="">-- Search for producers --</option>' + data);
+                    // Load and set selected producers
+                    $.get('@Url.Action("LoadTrackProducers", new { id = Model.TrackID })', function(producerIds) {
+                        $('#ProducerIDs').val(producerIds).trigger('change');
+                    });
                 });
             }
 

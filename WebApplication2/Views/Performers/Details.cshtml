@@ -1,48 +1,175 @@
 ﻿@model WebApplication2.Models.Performer
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = Model.Name;
 }
 
-<h1>Details</h1>
+<link rel="stylesheet" href="~/css/performer-details.css" />
 
-<div>
-    <h4>Performer</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.PerformerType)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.PerformerType.TypeName)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Name)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Name)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Description)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Description)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.MainGenre)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.MainGenre.GenreName)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.SecondaryGenre)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.SecondaryGenre.GenreName)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.PerformerID">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+<div class="performer-details-container">
+    <div class="performer-header">
+        @if (Model.Photo != null)
+        {
+            <div class="performer-photo">
+                <img src="data:image/jpeg;base64,@Convert.ToBase64String(Model.Photo)" alt="@Model.Name" />
+            </div>
+        }
+        <div class="performer-info">
+            <h1 class="performer-title">@Model.Name</h1>
+            <div class="performer-meta">
+                <div class="performer-meta-item">
+                    <i class="fas fa-user-tag"></i>
+                    <span class="meta-label">Type:</span>
+                    <span class="meta-value">@(Model.PerformerType?.TypeName ?? "Unknown")</span>
+                </div>
+                @if (Model.MainGenre != null)
+                {
+                    <div class="performer-meta-item">
+                        <i class="fas fa-music"></i>
+                        <span class="meta-label">Main Genre:</span>
+                        <span class="meta-value">@Model.MainGenre.GenreName</span>
+                    </div>
+                }
+                @if (Model.SecondaryGenre != null)
+                {
+                    <div class="performer-meta-item">
+                        <i class="fas fa-music"></i>
+                        <span class="meta-label">Secondary Genre:</span>
+                        <span class="meta-value">@Model.SecondaryGenre.GenreName</span>
+                    </div>
+                }
+            </div>
+            @if (!string.IsNullOrEmpty(Model.Description))
+            {
+                <div class="performer-description">
+                    <h3>About</h3>
+                    <p>@Model.Description</p>
+                </div>
+            }
+        </div>
+    </div>
+
+    @if (Model.ReleasePerformers?.Any() == true)
+    {
+        <div class="content-section">
+            <h2>Releases</h2>
+            <div class="release-grid">
+                @foreach (var releasePerformer in Model.ReleasePerformers.OrderByDescending(rp => rp.Release?.ReleaseDate))
+                {
+                    if (releasePerformer.Release != null)
+                    {
+                        <a href="@Url.Action("Details", "Releases", new { id = releasePerformer.ReleaseID })" class="release-card">
+                            @if (releasePerformer.Release.ReleaseCover != null)
+                            {
+                                <img src="data:image/jpeg;base64,@Convert.ToBase64String(releasePerformer.Release.ReleaseCover)" 
+                                     alt="@releasePerformer.Release.Title" class="release-cover" />
+                            }
+                            else
+                            {
+                                <div class="release-cover-placeholder">
+                                    <i class="fas fa-music"></i>
+                                </div>
+                            }
+                            <div class="release-info">
+                                <h3>@releasePerformer.Release.Title</h3>
+                                <p>@(releasePerformer.Release.ReleaseType?.ReleaseTypeName ?? "Unknown") • @releasePerformer.Release.ReleaseDate.Year</p>
+                            </div>
+                        </a>
+                    }
+                }
+            </div>
+        </div>
+    }
+
+    @if (Model.TrackPerformers?.Any() == true)
+    {
+        <div class="content-section">
+            <h2>Main Tracks</h2>
+            <div class="track-list">
+                @foreach (var trackPerformer in Model.TrackPerformers.Where(tp => tp.Track != null).OrderByDescending(tp => tp.Track.Title))
+                {
+                    <a href="@Url.Action("Details", "Tracks", new { id = trackPerformer.TrackID })" class="track-item">
+                        <div class="track-info">
+                            <h3>@trackPerformer.Track.Title</h3>
+                            @if (trackPerformer.Track.Length.HasValue)
+                            {
+                                <span class="track-length">@trackPerformer.Track.Length.Value.ToString(@"mm\:ss")</span>
+                            }
+                        </div>
+                    </a>
+                }
+            </div>
+        </div>
+    }
+
+    @{
+        var guestTracks = Model.TrackPerformers?
+            .Where(tp => tp.Track != null && tp.Track.GuestID == Model.PerformerID)
+            .Select(tp => tp.Track) ?? Enumerable.Empty<Track>();
+        var secondGuestTracks = Model.TrackPerformers?
+            .Where(tp => tp.Track != null && tp.Track.SecondGuestID == Model.PerformerID)
+            .Select(tp => tp.Track) ?? Enumerable.Empty<Track>();
+    }
+
+    @if (guestTracks.Any() || secondGuestTracks.Any())
+    {
+        <div class="content-section">
+            <h2>Guest Appearances</h2>
+            <div class="track-list">
+                @foreach (var track in guestTracks.OrderByDescending(t => t.Title))
+                {
+                    <a href="@Url.Action("Details", "Tracks", new { id = track.TrackID })" class="track-item">
+                        <div class="track-info">
+                            <h3>@track.Title</h3>
+                            @if (track.Length.HasValue)
+                            {
+                                <span class="track-length">@track.Length.Value.ToString(@"mm\:ss")</span>
+                            }
+                            <span class="guest-role">Main Guest</span>
+                        </div>
+                    </a>
+                }
+                @foreach (var track in secondGuestTracks.OrderByDescending(t => t.Title))
+                {
+                    <a href="@Url.Action("Details", "Tracks", new { id = track.TrackID })" class="track-item">
+                        <div class="track-info">
+                            <h3>@track.Title</h3>
+                            @if (track.Length.HasValue)
+                            {
+                                <span class="track-length">@track.Length.Value.ToString(@"mm\:ss")</span>
+                            }
+                            <span class="guest-role">Second Guest</span>
+                        </div>
+                    </a>
+                }
+            </div>
+        </div>
+    }
+
+    @if (Model.ProducedTracks?.Any() == true)
+    {
+        <div class="content-section">
+            <h2>Production Credits</h2>
+            <div class="track-list">
+                @foreach (var trackProducer in Model.ProducedTracks.Where(tp => tp.Track != null).OrderByDescending(tp => tp.Track.Title))
+                {
+                    <a href="@Url.Action("Details", "Tracks", new { id = trackProducer.TrackID })" class="track-item">
+                        <div class="track-info">
+                            <h3>@trackProducer.Track.Title</h3>
+                            @if (trackProducer.Track.Length.HasValue)
+                            {
+                                <span class="track-length">@trackProducer.Track.Length.Value.ToString(@"mm\:ss")</span>
+                            }
+                            <span class="producer-role">Producer</span>
+                        </div>
+                    </a>
+                }
+            </div>
+        </div>
+    }
+
+    <div class="performer-actions">
+        <a asp-action="Edit" asp-route-id="@Model.PerformerID" class="btn-edit">Edit Performer</a>
+        <a asp-action="Index" class="btn-back">Back to List</a>
+    </div>
 </div>

@@ -70,6 +70,12 @@
     font-size: 0.9rem;
 }
 
+.release-description {
+    color: #666;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+}
+
 .release-performers {
     margin-bottom: 2rem;
 }
@@ -126,11 +132,15 @@
     background: #f8f9fa;
     border-radius: 8px;
     transition: all 0.3s ease;
+    text-decoration: none;
+    color: inherit;
+    border: 1px solid transparent;
 }
 
 .track-item:hover {
     background: #e9ecef;
     transform: translateX(5px);
+    border-color: #3498db;
 }
 
 .track-number {
@@ -157,9 +167,16 @@
     gap: 0.5rem;
 }
 
+.performer-name {
+    color: #666;
+    font-size: 0.9rem;
+}
+
 .track-length {
     color: #666;
     font-size: 0.9rem;
+    min-width: 60px;
+    text-align: right;
 }
 
 @media (max-width: 768px) {
@@ -180,5 +197,23 @@
 
     .release-title {
         font-size: 2rem;
+    }
+
+    .track-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .track-number {
+        width: auto;
+    }
+
+    .track-info {
+        margin: 0;
+    }
+
+    .track-length {
+        text-align: left;
     }
 } 

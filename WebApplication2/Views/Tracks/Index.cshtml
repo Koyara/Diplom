@@ -4,39 +4,23 @@
     ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
+<h1>Tracks</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create" class="btn btn-primary">Create New</a>
 </p>
 <table class="table">
     <thead>
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Length)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.IsSong)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Title)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Lyrics)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.GuestID)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.SecondGuest)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Language)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Scale)
-            </th>
-            <th></th>
+            <th>@Html.DisplayNameFor(model => model.Length)</th>
+            <th>@Html.DisplayNameFor(model => model.IsSong)</th>
+            <th>@Html.DisplayNameFor(model => model.Title)</th>
+            <th>@Html.DisplayNameFor(model => model.Lyrics)</th>
+            <th>Main Guest</th>
+            <th>Second Guest</th>
+            <th>@Html.DisplayNameFor(model => model.Language)</th>
+            <th>@Html.DisplayNameFor(model => model.Scale)</th>
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
@@ -55,21 +39,21 @@
                 @Html.DisplayFor(modelItem => item.Lyrics)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.GuestID)
+                @(item.MainGuest?.Name ?? "-")
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.SecondGuest.PerformerID)
+                @(item.SecondGuest?.Name ?? "-")
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Language.LanguageCode)
+                @(item.Language?.LanguageName ?? "-")
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Scale.ScaleId)
+                @(item.Scale?.Name ?? "-")
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.TrackID">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.TrackID">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.TrackID">Delete</a>
+                <a asp-action="Edit" asp-route-id="@item.TrackID" class="btn btn-sm btn-primary">Edit</a>
+                <a asp-action="Details" asp-route-id="@item.TrackID" class="btn btn-sm btn-info">Details</a>
+                <a asp-action="Delete" asp-route-id="@item.TrackID" class="btn btn-sm btn-danger">Delete</a>
             </td>
         </tr>
 }

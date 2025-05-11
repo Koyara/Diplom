@@ -25,6 +25,7 @@ namespace WebApplication2.Data
         public DbSet<Language> Language { get; set; }
         public DbSet<Country> Country { get; set; }
         public DbSet<Contributor> Contributor { get; set; }
+        public DbSet<TrackProducer> TrackProducer { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

@@ -17,12 +17,11 @@ namespace WebApplication2.Models
         public bool? IsSong { get; set; }
         public string? Lyrics { get; set; }
 
-
-        [ForeignKey("Performer")]
+        [ForeignKey("MainGuest")]
         public int? GuestID { get; set; }
         public virtual Performer? MainGuest { get; set; }
 
-        [ForeignKey("Performer")]
+        [ForeignKey("SecondGuest")]
         public int? SecondGuestID { get; set; }
         public virtual Performer? SecondGuest { get; set; }
 
@@ -38,6 +37,6 @@ namespace WebApplication2.Models
 
         public virtual ICollection<ReleaseTrack> ReleaseTracks { get; set; } = new List<ReleaseTrack>();
         public virtual ICollection<TrackPerformer> TrackPerformers { get; set; } = new List<TrackPerformer>();
-
+        public virtual ICollection<TrackProducer> TrackProducers { get; set; } = new List<TrackProducer>();
     }
 }

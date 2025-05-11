@@ -1,73 +1,104 @@
 ﻿@model WebApplication2.Models.Track
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = Model.Title;
 }
 
-<h1>Details</h1>
+<link rel="stylesheet" href="~/css/track-details.css" />
 
-<div>
-    <h4>Track</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Length)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Length)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.BPM)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.BPM)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.IsSong)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.IsSong)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Title)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Title)
-        </dd>
-        </dd>
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Lyrics)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Lyrics)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.GuestID)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.GuestID)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.SecondGuest)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.SecondGuest.PerformerID)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Language)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Language.LanguageCode)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Scale)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Scale.ScaleId)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.TrackID">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+<div class="track-details-container">
+    <div class="track-header">
+        <div class="track-info">
+            <h1 class="track-title">@Model.Title</h1>
+            <div class="track-meta">
+                @if (Model.Length.HasValue)
+                {
+                    <div class="track-meta-item">
+                        <i class="fas fa-clock"></i>
+                        <span class="meta-label">Length:</span>
+                        <span class="meta-value">@Model.Length.Value.ToString(@"mm\:ss")</span>
+                    </div>
+                }
+                @if (Model.BPM.HasValue)
+                {
+                    <div class="track-meta-item">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span class="meta-label">BPM:</span>
+                        <span class="meta-value">@Model.BPM</span>
+                    </div>
+                }
+                @if (Model.Language != null)
+                {
+                    <div class="track-meta-item">
+                        <i class="fas fa-language"></i>
+                        <span class="meta-label">Language:</span>
+                        <span class="meta-value">@Model.Language.LanguageName</span>
+                    </div>
+                }
+                @if (Model.Scale != null)
+                {
+                    <div class="track-meta-item">
+                        <i class="fas fa-music"></i>
+                        <span class="meta-label">Scale:</span>
+                        <span class="meta-value">@Model.Scale.Name</span>
+                    </div>
+                }
+            </div>
+            @if (Model.MainGuest != null || Model.SecondGuest != null)
+            {
+                <div class="featuring-section">
+                    <h3>Featuring</h3>
+                    <div class="guest-list">
+                        @if (Model.MainGuest != null)
+                        {
+                            <a href="@Url.Action("Details", "Performers", new { id = Model.MainGuest.PerformerID })" 
+                               class="guest-link">
+                                @Model.MainGuest.Name
+                            </a>
+                        }
+                        @if (Model.SecondGuest != null)
+                        {
+                            <a href="@Url.Action("Details", "Performers", new { id = Model.SecondGuest.PerformerID })" 
+                               class="guest-link">
+                                @Model.SecondGuest.Name
+                            </a>
+                        }
+                    </div>
+                </div>
+            }
+
+            @if (Model.TrackProducers != null && Model.TrackProducers.Any())
+            {
+                <div class="featuring-section">
+                    <h3>Produced By</h3>
+                    <div class="guest-list">
+                        @foreach (var producer in Model.TrackProducers)
+                        {
+                            <a href="@Url.Action("Details", "Performers", new { id = producer.ProducerID })" 
+                               class="guest-link">
+                                @producer.Producer.Name
+                            </a>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.Lyrics))
+    {
+        <div class="lyrics-section">
+            <div class="lyrics-container">
+                <h2 class="lyrics-title">Lyrics</h2>
+                <div class="lyrics-content">
+                    @Model.Lyrics
+                </div>
+            </div>
+        </div>
+    }
+
+    <div class="track-actions">
+        <a asp-action="Edit" asp-route-id="@Model.TrackID" class="btn-edit">Edit Track</a>
+        <a asp-action="Index" class="btn-back">Back to List</a>
+    </div>
 </div>

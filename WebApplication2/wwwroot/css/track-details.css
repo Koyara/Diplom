@@ -1,0 +1,176 @@
+.track-details-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.track-header {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: #f8f9fa;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.track-info {
+    flex-grow: 1;
+}
+
+.track-title {
+    font-size: 2.5rem;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+}
+
+.track-meta {
+    display: flex;
+    gap: 1.5rem;
+    color: #666;
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+}
+
+.track-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.track-meta-item i {
+    color: #3498db;
+}
+
+.meta-label {
+    color: #666;
+    font-weight: 500;
+}
+
+.meta-value {
+    color: #2c3e50;
+}
+
+.featuring-section {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e9ecef;
+}
+
+.featuring-section h3 {
+    font-size: 1.2rem;
+    color: #2c3e50;
+    margin-bottom: 0.75rem;
+}
+
+.guest-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.guest-link {
+    background: #f0f0f0;
+    color: #2c3e50;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    text-decoration: none;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+}
+
+.guest-link:hover {
+    background: #3498db;
+    color: white;
+    transform: translateY(-2px);
+}
+
+.lyrics-section {
+    margin-top: 3rem;
+    text-align: center;
+}
+
+.lyrics-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.lyrics-title {
+    font-size: 1.8rem;
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+}
+
+.lyrics-content {
+    font-size: 1.2rem;
+    line-height: 1.8;
+    color: #34495e;
+    white-space: pre-line;
+}
+
+.track-actions {
+    margin-top: 2rem;
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.track-actions a {
+    padding: 0.8rem 1.5rem;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-edit {
+    background: #3498db;
+    color: white;
+}
+
+.btn-edit:hover {
+    background: #2980b9;
+}
+
+.btn-back {
+    background: #95a5a6;
+    color: white;
+}
+
+.btn-back:hover {
+    background: #7f8c8d;
+}
+
+@media (max-width: 768px) {
+    .track-header {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .track-meta {
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .featuring-section {
+        text-align: center;
+    }
+
+    .guest-list {
+        justify-content: center;
+    }
+
+    .lyrics-container {
+        padding: 1rem;
+    }
+
+    .lyrics-content {
+        font-size: 1.1rem;
+    }
+} 
