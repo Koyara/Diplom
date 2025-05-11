@@ -29,5 +29,10 @@ namespace WebApplication2.Models.ViewModels
         public string SelectedTrackIds { get; set; } = string.Empty;
         public List<ReleaseCreateTrackViewModel> CurrentTracks { get; set; } = new List<ReleaseCreateTrackViewModel>();
         public string SearchTerm { get; set; } = string.Empty;
+
+        // Performer management
+        public List<PerformerViewModel> AvailablePerformers { get; set; } = new List<PerformerViewModel>();
+        public List<PerformerViewModel> CurrentPerformers { get; set; } = new List<PerformerViewModel>();
+        public string SelectedPerformerIds { get; set; } = string.Empty;
     }
 } 

@@ -22,9 +22,19 @@ namespace WebApplication2.Controllers
         }
 
         // GET: Releases
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchString)
         {
-            return View(await _context.Release.ToListAsync());
+            ViewData["CurrentFilter"] = searchString;
+
+            var releases = from r in _context.Release
+                          select r;
+
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                releases = releases.Where(r => r.Title.Contains(searchString));
+            }
+
+            return View(await releases.ToListAsync());
         }
 
         // GET: Releases/Details/5
@@ -248,6 +258,8 @@ namespace WebApplication2.Controllers
                     .ThenInclude(rt => rt.Track)
                         .ThenInclude(t => t.TrackPerformers)
                             .ThenInclude(tp => tp.Performer)
+                .Include(r => r.ReleasePerformers)
+                    .ThenInclude(rp => rp.Performer)
                 .FirstOrDefaultAsync(r => r.ReleaseID == id);
 
             if (release == null)
@@ -305,6 +317,22 @@ namespace WebApplication2.Controllers
                         PerformerName = t.TrackPerformers.Select(tp => tp.Performer.Name).FirstOrDefault() ?? "Unknown",
                         Length = t.Length
                     })
+                    .ToListAsync(),
+
+                // Add performer data
+                CurrentPerformers = release.ReleasePerformers
+                    .Select(rp => new PerformerViewModel
+                    {
+                        PerformerID = rp.PerformerID,
+                        Name = rp.Performer.Name
+                    }).ToList(),
+                AvailablePerformers = await _context.Performer
+                    .Where(p => !release.ReleasePerformers.Select(rp => rp.PerformerID).Contains(p.PerformerID))
+                    .Select(p => new PerformerViewModel
+                    {
+                        PerformerID = p.PerformerID,
+                        Name = p.Name
+                    })
                     .ToListAsync()
             };
 
@@ -327,6 +355,7 @@ namespace WebApplication2.Controllers
                 {
                     var existingRelease = await _context.Release
                         .Include(r => r.ReleaseTracks)
+                        .Include(r => r.ReleasePerformers)
                         .FirstOrDefaultAsync(r => r.ReleaseID == id);
 
                     if (existingRelease == null)
@@ -341,6 +370,56 @@ namespace WebApplication2.Controllers
                     existingRelease.SecondGenreCode = viewModel.SecondGenreCode;
                     existingRelease.ReleaseTypeID = viewModel.ReleaseTypeID;
                     existingRelease.Description = viewModel.Description;
+
+                    // Update performers
+                    if (!string.IsNullOrEmpty(viewModel.SelectedPerformerIds))
+                    {
+                        var performerIds = viewModel.SelectedPerformerIds.Split(',')
+                            .Where(id => !string.IsNullOrWhiteSpace(id))
+                            .Select(id => int.Parse(id.Trim()))
+                            .ToList();
+
+                        // Get current performer IDs
+                        var currentPerformerIds = existingRelease.ReleasePerformers.Select(rp => rp.PerformerID).ToList();
+
+                        // Find performers to remove (in current but not in new selection)
+                        var performersToRemove = existingRelease.ReleasePerformers
+                            .Where(rp => !performerIds.Contains(rp.PerformerID))
+                            .ToList();
+
+                        // Find performers to add (in new selection but not in current)
+                        var performersToAdd = performerIds
+                            .Where(id => !currentPerformerIds.Contains(id))
+                            .ToList();
+
+                        // Remove performers that are no longer selected
+                        if (performersToRemove.Any())
+                        {
+                            _context.ReleasePerformer.RemoveRange(performersToRemove);
+                        }
+
+                        // Add new performers
+                        if (performersToAdd.Any())
+                        {
+                            foreach (var performerId in performersToAdd)
+                            {
+                                _context.ReleasePerformer.Add(new ReleasePerformer
+                                {
+                                    ReleaseID = existingRelease.ReleaseID,
+                                    PerformerID = performerId
+                                });
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // If no performers are selected, remove all existing performers
+                        var performersToRemove = existingRelease.ReleasePerformers.ToList();
+                        if (performersToRemove.Any())
+                        {
+                            _context.ReleasePerformer.RemoveRange(performersToRemove);
+                        }
+                    }
 
                     // Update tracks
                     var trackIds = !string.IsNullOrEmpty(viewModel.SelectedTrackIds) 
@@ -590,6 +669,22 @@ namespace WebApplication2.Controllers
                 ModelState.AddModelError("", "An error occurred while uploading the cover image. Please try again.");
                 return View(viewModel);
             }
+        }
+
+        // GET: Releases/SearchPerformers
+        public IActionResult SearchPerformers(string searchTerm)
+        {
+            var performers = _context.Performer
+                .Where(p => string.IsNullOrEmpty(searchTerm) || 
+                           p.Name.Contains(searchTerm))
+                .Select(p => new PerformerViewModel
+                {
+                    PerformerID = p.PerformerID,
+                    Name = p.Name
+                })
+                .ToList();
+
+            return PartialView("_PerformerList", performers);
         }
     }
 }
