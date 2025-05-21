@@ -1,7 +1,7 @@
 ﻿@model WebApplication2.Models.Track
 
 @{
-    ViewData["Title"] = "Edit Track";
+    ViewData["Title"] = "Edit";
 }
 
 <h1>Edit Track</h1>
@@ -72,10 +72,18 @@
 
             <div class="form-group mb-3">
                 <label asp-for="ScaleID" class="control-label">Scale</label>
-                <select asp-for="ScaleID" class="form-control select2" id="ScaleID">
+                <select asp-for="ScaleID" class="form-control select2" asp-items="ViewBag.Scales">
                     <option value="">-- Select Scale --</option>
                 </select>
                 <span asp-validation-for="ScaleID" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label class="control-label">Performers</label>
+                <select class="form-control select2" id="PerformerIDs" name="PerformerIDs" multiple>
+                    <option value="">-- Search for performers --</option>
+                </select>
+                <span class="text-danger"></span>
             </div>
 
             <div class="form-group mb-3">
@@ -109,6 +117,15 @@
                 allowClear: true
             });
 
+            // Initialize Select2 for performers with multiple selection
+            $('#PerformerIDs').select2({
+                width: '100%',
+                placeholder: 'Search for performers...',
+                allowClear: true,
+                multiple: true,
+                tags: false
+            });
+
             // Initialize Select2 for producers with multiple selection
             $('#ProducerIDs').select2({
                 width: '100%',
@@ -118,16 +135,30 @@
                 tags: false
             });
 
+            // Store initial selected values
+            var initialGuestID = $('#GuestID').val();
+            var initialSecondGuestID = $('#SecondGuestID').val();
+            var initialLanguageCode = $('#LanguageCode').val();
+            var initialScaleID = $('#ScaleID').val();
+
             // Load initial data
             loadGuests();
             loadProducers();
+            loadPerformers();
             loadLanguages();
             loadScales();
 
             function loadGuests() {
                 $.get('@Url.Action("LoadGuests")', function(data) {
-                    $('#GuestID').html('<option value="">-- Search for a guest --</option>' + data);
-                    $('#SecondGuestID').html('<option value="">-- Search for a guest --</option>' + data);
+                    var $guestSelect = $('#GuestID');
+                    var $secondGuestSelect = $('#SecondGuestID');
+                    
+                    $guestSelect.html('<option value="">-- Search for a guest --</option>' + data);
+                    $secondGuestSelect.html('<option value="">-- Search for a guest --</option>' + data);
+                    
+                    // Restore selected values
+                    $guestSelect.val(initialGuestID).trigger('change');
+                    $secondGuestSelect.val(initialSecondGuestID).trigger('change');
                 });
             }
 
@@ -141,15 +172,30 @@
                 });
             }
 
+            function loadPerformers() {
+                $.get('@Url.Action("LoadGuests")', function(data) {
+                    $('#PerformerIDs').html('<option value="">-- Search for performers --</option>' + data);
+                    // Load and set selected performers
+                    var performerIds = @Html.Raw(Json.Serialize(Model.TrackPerformers.Select(tp => tp.PerformerID)));
+                    $('#PerformerIDs').val(performerIds).trigger('change');
+                });
+            }
+
             function loadLanguages() {
                 $.get('@Url.Action("LoadLanguages")', function(data) {
-                    $('#LanguageCode').html('<option value="">-- Select Language --</option>' + data);
+                    var $languageSelect = $('#LanguageCode');
+                    $languageSelect.html('<option value="">-- Select Language --</option>' + data);
+                    // Restore selected value
+                    $languageSelect.val(initialLanguageCode).trigger('change');
                 });
             }
 
             function loadScales() {
                 $.get('@Url.Action("LoadScales")', function(data) {
-                    $('#ScaleID').html('<option value="">-- Select Scale --</option>' + data);
+                    var $scaleSelect = $('#ScaleID');
+                    $scaleSelect.html('<option value="">-- Select Scale --</option>' + data);
+                    // Restore selected value
+                    $scaleSelect.val(initialScaleID).trigger('change');
                 });
             }
         });

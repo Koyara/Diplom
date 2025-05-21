@@ -146,6 +146,10 @@
     background: #7f8c8d;
 }
 
+.release-cover, .cover-image {
+    position: static !important;
+}
+
 @media (max-width: 768px) {
     .track-header {
         flex-direction: column;

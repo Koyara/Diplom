@@ -8,6 +8,21 @@
 
 <div class="track-details-container">
     <div class="track-header">
+        @if (Model.ReleaseTracks != null && Model.ReleaseTracks.Any())
+        {
+            <div class="release-cover">
+                @foreach (var releaseTrack in Model.ReleaseTracks)
+                {
+                    if (releaseTrack.Release?.ReleaseCover != null)
+                    {
+                        <img src="data:image/jpeg;base64,@Convert.ToBase64String(releaseTrack.Release.ReleaseCover)" 
+                             alt="@releaseTrack.Release.Title cover" 
+                             class="cover-image" />
+                        break;
+                    }
+                }
+            </div>
+        }
         <div class="track-info">
             <h1 class="track-title">@Model.Title</h1>
             <div class="track-meta">
@@ -44,6 +59,21 @@
                     </div>
                 }
             </div>
+            @if (Model.TrackPerformers != null && Model.TrackPerformers.Any())
+            {
+                <div class="featuring-section">
+                    <h3>Performers</h3>
+                    <div class="guest-list">
+                        @foreach (var performer in Model.TrackPerformers)
+                        {
+                            <a href="@Url.Action("Details", "Performers", new { id = performer.PerformerID })" 
+                               class="guest-link">
+                                @performer.Performer.Name
+                            </a>
+                        }
+                    </div>
+                </div>
+            }
             @if (Model.MainGuest != null || Model.SecondGuest != null)
             {
                 <div class="featuring-section">
@@ -105,3 +135,125 @@
         </div>
     }
 </div>
+
+<style>
+    <style >
+    .track-details-container {
+        margin-top: 2rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .track-header {
+        display: flex;
+        gap: 2rem;
+        margin-bottom: 2rem;
+        align-items: flex-start;
+        width: 100%;
+        max-width: 900px;
+    }
+
+    .release-cover {
+        flex-shrink: 0;
+        width: 300px;
+        height: 300px;
+        overflow: hidden;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        background: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .cover-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    .track-info {
+        flex-grow: 1;
+        min-width: 0;
+    }
+
+    .track-title {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        word-break: break-word;
+    }
+
+    .track-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+        margin-bottom: 1rem;
+        font-size: 1.1rem;
+    }
+
+    .track-meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+
+    .featuring-section {
+        margin-top: 1.5rem;
+    }
+
+        .featuring-section h3 {
+            margin-bottom: 0.5rem;
+            color: #666;
+        }
+
+    .guest-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .guest-link {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        background-color: #f0f0f0;
+        border-radius: 15px;
+        color: #333;
+        text-decoration: none;
+        transition: background-color 0.2s;
+    }
+
+        .guest-link:hover {
+            background-color: #e0e0e0;
+        }
+
+    .lyrics-section {
+        width: 100%;
+        max-width: 700px;
+        margin: 2rem auto 0 auto;
+        background: #fafbfc;
+        border-radius: 16px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        padding: 2rem;
+        text-align: center;
+    }
+
+    .lyrics-title {
+        font-size: 2rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .lyrics-content {
+        white-space: pre-line;
+        font-size: 1.1rem;
+        color: #333;
+    }
+
+    .release-cover, .cover-image {
+        position: static !important;
+    }
+
+    }
+</style>
+</style>

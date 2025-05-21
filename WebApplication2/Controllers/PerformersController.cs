@@ -64,9 +64,30 @@ namespace WebApplication2.Controllers
             // Load tracks where performer is the main performer
             performer.TrackPerformers = await _context.TrackPerformer
                 .Include(tp => tp.Track)
+                    .ThenInclude(t => t.MainGuest)
+                .Include(tp => tp.Track)
+                    .ThenInclude(t => t.SecondGuest)
                 .Where(tp => tp.PerformerID == id)
                 .AsNoTracking()
                 .ToListAsync();
+
+            // Load tracks where performer is a guest
+            var guestTracks = await _context.Track
+                .Include(t => t.MainGuest)
+                .Include(t => t.SecondGuest)
+                .Where(t => t.GuestID == id || t.SecondGuestID == id)
+                .AsNoTracking()
+                .ToListAsync();
+
+            // Add guest tracks to TrackPerformers
+            foreach (var track in guestTracks)
+            {
+                performer.TrackPerformers.Add(new TrackPerformer
+                {
+                    Track = track,
+                    PerformerID = id.Value
+                });
+            }
 
             // Load tracks where performer is a producer
             performer.ProducedTracks = await _context.TrackProducer

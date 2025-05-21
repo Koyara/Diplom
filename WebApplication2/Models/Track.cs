@@ -35,6 +35,12 @@ namespace WebApplication2.Models
 
         public int? BPM{ get; set; }
 
+        [NotMapped]
+        public int[]? ProducerIDs { get; set; }
+
+        [NotMapped]
+        public int[]? PerformerIDs { get; set; }
+
         public virtual ICollection<ReleaseTrack> ReleaseTracks { get; set; } = new List<ReleaseTrack>();
         public virtual ICollection<TrackPerformer> TrackPerformers { get; set; } = new List<TrackPerformer>();
         public virtual ICollection<TrackProducer> TrackProducers { get; set; } = new List<TrackProducer>();

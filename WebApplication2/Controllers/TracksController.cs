@@ -51,6 +51,10 @@ namespace WebApplication2.Controllers
                 .Include(t => t.SecondGuest)
                 .Include(t => t.TrackProducers)
                     .ThenInclude(tp => tp.Producer)
+                .Include(t => t.TrackPerformers)
+                    .ThenInclude(tp => tp.Performer)
+                .Include(t => t.ReleaseTracks)
+                    .ThenInclude(rt => rt.Release)
                 .FirstOrDefaultAsync(m => m.TrackID == id);
             if (track == null)
             {
@@ -74,7 +78,7 @@ namespace WebApplication2.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Editor,Admin")]
-        public async Task<IActionResult> Create([Bind("TrackID,Title,Length,BPM,IsSong,Lyrics,GuestID,SecondGuestID,LanguageCode,ScaleID")] Track track, int[] ProducerIDs)
+        public async Task<IActionResult> Create([Bind("Title,Length,LanguageCode,ScaleID,GuestID,SecondGuestID,ProducerIDs,PerformerIDs")] Track track)
         {
             if (ModelState.IsValid)
             {
@@ -82,9 +86,9 @@ namespace WebApplication2.Controllers
                 await _context.SaveChangesAsync();
 
                 // Add producer relationships
-                if (ProducerIDs != null && ProducerIDs.Any())
+                if (track.ProducerIDs != null)
                 {
-                    foreach (var producerId in ProducerIDs)
+                    foreach (var producerId in track.ProducerIDs)
                     {
                         var trackProducer = new TrackProducer
                         {
@@ -93,15 +97,29 @@ namespace WebApplication2.Controllers
                         };
                         _context.TrackProducer.Add(trackProducer);
                     }
-                    await _context.SaveChangesAsync();
                 }
 
+                // Add performer relationships
+                if (track.PerformerIDs != null)
+                {
+                    foreach (var performerId in track.PerformerIDs)
+                    {
+                        var trackPerformer = new TrackPerformer
+                        {
+                            TrackID = track.TrackID,
+                            PerformerID = performerId
+                        };
+                        _context.TrackPerformer.Add(trackPerformer);
+                    }
+                }
+
+                await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-
-            ViewBag.Guests = new SelectList(_context.Performer.Select(p => new { p.PerformerID, p.Name }), "PerformerID", "Name");
-            ViewBag.Languages = new SelectList(_context.Language.Select(l => new { l.LanguageCode, l.LanguageName }), "LanguageCode", "LanguageName");
-            ViewBag.Scales = new SelectList(_context.Scale.Select(s => new { s.ScaleId, s.Name }), "ScaleId", "Name");
+            ViewData["GuestID"] = new SelectList(_context.Performer, "PerformerID", "Name", track.GuestID);
+            ViewData["SecondGuestID"] = new SelectList(_context.Performer, "PerformerID", "Name", track.SecondGuestID);
+            ViewData["LanguageCode"] = new SelectList(_context.Language, "LanguageCode", "Name", track.LanguageCode);
+            ViewData["ScaleID"] = new SelectList(_context.Scale, "ScaleID", "Name", track.ScaleID);
             return View(track);
         }
 
@@ -120,6 +138,7 @@ namespace WebApplication2.Controllers
                 .Include(t => t.MainGuest)
                 .Include(t => t.SecondGuest)
                 .Include(t => t.TrackProducers)
+                .Include(t => t.TrackPerformers)
                 .FirstOrDefaultAsync(m => m.TrackID == id);
 
             if (track == null)
@@ -163,7 +182,7 @@ namespace WebApplication2.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Editor,Admin")]
-        public async Task<IActionResult> Edit(int id, [Bind("TrackID,Title,Length,BPM,IsSong,Lyrics,GuestID,SecondGuestID,LanguageCode,ScaleID")] Track track, int[] ProducerIDs)
+        public async Task<IActionResult> Edit(int id, [Bind("TrackID,Title,Length,BPM,IsSong,Lyrics,GuestID,SecondGuestID,LanguageCode,ScaleID")] Track track, int[] ProducerIDs, int[] PerformerIDs)
         {
             if (id != track.TrackID)
             {
@@ -194,6 +213,26 @@ namespace WebApplication2.Controllers
                                 ProducerID = producerId
                             };
                             _context.TrackProducer.Add(trackProducer);
+                        }
+                    }
+
+                    // Remove existing performer relationships
+                    var existingPerformers = await _context.TrackPerformer
+                        .Where(tp => tp.TrackID == track.TrackID)
+                        .ToListAsync();
+                    _context.TrackPerformer.RemoveRange(existingPerformers);
+
+                    // Add new performer relationships
+                    if (PerformerIDs != null && PerformerIDs.Any())
+                    {
+                        foreach (var performerId in PerformerIDs)
+                        {
+                            var trackPerformer = new TrackPerformer
+                            {
+                                TrackID = track.TrackID,
+                                PerformerID = performerId
+                            };
+                            _context.TrackPerformer.Add(trackPerformer);
                         }
                     }
 

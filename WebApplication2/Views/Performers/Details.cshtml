@@ -81,40 +81,19 @@
         </div>
     }
 
-    @if (Model.TrackPerformers?.Any() == true)
-    {
-        <div class="content-section">
-            <h2>Main Tracks</h2>
-            <div class="track-list">
-                @foreach (var trackPerformer in Model.TrackPerformers.Where(tp => tp.Track != null).OrderByDescending(tp => tp.Track.Title))
-                {
-                    <a href="@Url.Action("Details", "Tracks", new { id = trackPerformer.TrackID })" class="track-item">
-                        <div class="track-info">
-                            <h3>@trackPerformer.Track.Title</h3>
-                            @if (trackPerformer.Track.Length.HasValue)
-                            {
-                                <span class="track-length">@trackPerformer.Track.Length.Value.ToString(@"mm\:ss")</span>
-                            }
-                        </div>
-                    </a>
-                }
-            </div>
-        </div>
-    }
-
     @{
         var guestTracks = Model.TrackPerformers?
-            .Where(tp => tp.Track != null && tp.Track.GuestID == Model.PerformerID)
+            .Where(tp => tp.Track != null && tp.Track.MainGuest?.PerformerID == Model.PerformerID)
             .Select(tp => tp.Track) ?? Enumerable.Empty<Track>();
         var secondGuestTracks = Model.TrackPerformers?
-            .Where(tp => tp.Track != null && tp.Track.SecondGuestID == Model.PerformerID)
+            .Where(tp => tp.Track != null && tp.Track.SecondGuest?.PerformerID == Model.PerformerID)
             .Select(tp => tp.Track) ?? Enumerable.Empty<Track>();
     }
 
     @if (guestTracks.Any() || secondGuestTracks.Any())
     {
         <div class="content-section">
-            <h2>Guest Appearances</h2>
+            <h2>Appears On</h2>
             <div class="track-list">
                 @foreach (var track in guestTracks.OrderByDescending(t => t.Title))
                 {
@@ -125,7 +104,6 @@
                             {
                                 <span class="track-length">@track.Length.Value.ToString(@"mm\:ss")</span>
                             }
-                            <span class="guest-role">Main Guest</span>
                         </div>
                     </a>
                 }
@@ -138,7 +116,6 @@
                             {
                                 <span class="track-length">@track.Length.Value.ToString(@"mm\:ss")</span>
                             }
-                            <span class="guest-role">Second Guest</span>
                         </div>
                     </a>
                 }
