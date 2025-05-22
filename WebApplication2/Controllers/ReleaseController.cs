@@ -44,7 +44,9 @@ namespace WebApplication2.Controllers
                         TrackID = rt.TrackID,
                         Title = rt.Track.Title,
                         PerformerName = rt.Track.TrackPerformers.Select(tp => tp.Performer.Name).FirstOrDefault() ?? "Unknown",
-                        Length = rt.Track.Length
+                        Length = rt.Track.Length,
+                        MainGuestName = rt.Track.MainGuest != null ? rt.Track.MainGuest.Name : null,
+                        SecondGuestName = rt.Track.SecondGuest != null ? rt.Track.SecondGuest.Name : null
                     })
                     .ToList()
             };
@@ -67,7 +69,9 @@ namespace WebApplication2.Controllers
                         TrackID = t.TrackID,
                         Title = t.Title,
                         PerformerName = t.TrackPerformers.Select(tp => tp.Performer.Name).FirstOrDefault() ?? "Unknown",
-                        Length = t.Length
+                        Length = t.Length,
+                        MainGuestName = t.MainGuest != null ? t.MainGuest.Name : null,
+                        SecondGuestName = t.SecondGuest != null ? t.SecondGuest.Name : null
                     })
                     .ToList();
 

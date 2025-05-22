@@ -26,10 +26,22 @@ namespace WebApplication2.Controllers
 
         // GET: Performers
         [Authorize(Roles = "Editor,Admin")]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchTerm)
         {
-            var applicationDbContext = _context.Performer.Include(p => p.MainGenre).Include(p => p.PerformerType).Include(p => p.SecondaryGenre);
-            return View(await applicationDbContext.ToListAsync());
+            ViewBag.SearchTerm = searchTerm;
+
+            var performers = _context.Performer
+                .Include(p => p.MainGenre)
+                .Include(p => p.PerformerType)
+                .Include(p => p.SecondaryGenre)
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(searchTerm))
+            {
+                performers = performers.Where(p => p.Name.Contains(searchTerm));
+            }
+
+            return View(await performers.ToListAsync());
         }
 
         // GET: Performers/Details/5

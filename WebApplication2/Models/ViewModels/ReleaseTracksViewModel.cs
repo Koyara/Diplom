@@ -22,5 +22,7 @@ namespace WebApplication2.Models.ViewModels
         public string PerformerName { get; set; }
         public TimeSpan? Length { get; set; }
         public bool IsSelected { get; set; }
+        public string? MainGuestName { get; set; }
+        public string? SecondGuestName { get; set; }
     }
 } 

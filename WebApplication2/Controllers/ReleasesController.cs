@@ -69,7 +69,7 @@ namespace WebApplication2.Controllers
 
         // GET: Releases/Create
         [Authorize(Roles = "Editor,Admin")]
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
             var releasetypes = _context.ReleaseType
                 .Select(gn => new ReleaseTypeViewModel
@@ -91,7 +91,7 @@ namespace WebApplication2.Controllers
 
             var viewModel = new ReleaseCreateViewModel
             {
-                AvailableTracks = _context.Track
+                AvailableTracks = await _context.Track
                     .Include(t => t.TrackPerformers)
                         .ThenInclude(tp => tp.Performer)
                     .Select(t => new ReleaseCreateTrackViewModel
@@ -101,7 +101,14 @@ namespace WebApplication2.Controllers
                         PerformerName = t.TrackPerformers.Select(tp => tp.Performer.Name).FirstOrDefault() ?? "Unknown",
                         Length = t.Length
                     })
-                    .ToList()
+                    .ToListAsync(),
+                 AvailablePerformers = await _context.Performer
+                     .Select(p => new PerformerViewModel
+                     {
+                         PerformerID = p.PerformerID,
+                         Name = p.Name
+                     })
+                     .ToListAsync()
             };
 
             return View(viewModel);
@@ -121,6 +128,7 @@ namespace WebApplication2.Controllers
             System.Diagnostics.Debug.WriteLine($"ReleaseTypeID: {viewModel.ReleaseTypeID}");
             System.Diagnostics.Debug.WriteLine($"Description: {viewModel.Description}");
             System.Diagnostics.Debug.WriteLine($"SelectedTrackIds: {viewModel.SelectedTrackIds}");
+            System.Diagnostics.Debug.WriteLine($"SelectedPerformerIds: {viewModel.SelectedPerformerIds}");
 
             // Log ModelState errors
             if (!ModelState.IsValid)
@@ -224,6 +232,26 @@ namespace WebApplication2.Controllers
                         System.Diagnostics.Debug.WriteLine("Tracks added successfully");
                     }
 
+                    // Add selected performers to the release
+                    if (!string.IsNullOrEmpty(viewModel.SelectedPerformerIds))
+                    {
+                        var performerIds = viewModel.SelectedPerformerIds.Split(',')
+                            .Select(id => int.Parse(id.Trim()))
+                            .ToList();
+
+                        System.Diagnostics.Debug.WriteLine($"Adding {performerIds.Count} performers to release...");
+                        foreach (var performerId in performerIds)
+                        {
+                            _context.ReleasePerformer.Add(new ReleasePerformer
+                            {
+                                ReleaseID = release.ReleaseID,
+                                PerformerID = performerId
+                            });
+                        }
+                        await _context.SaveChangesAsync();
+                        System.Diagnostics.Debug.WriteLine("Performers added successfully");
+                    }
+
                     return RedirectToAction(nameof(Index));
                 }
                 catch (Exception ex)
@@ -233,8 +261,8 @@ namespace WebApplication2.Controllers
                 }
             }
 
-            // If we got here, something failed, reload available tracks
-            viewModel.AvailableTracks = _context.Track
+            // If we got here, something failed, reload available tracks and performers
+            viewModel.AvailableTracks = await _context.Track
                 .Include(t => t.TrackPerformers)
                     .ThenInclude(tp => tp.Performer)
                 .Select(t => new ReleaseCreateTrackViewModel
@@ -244,7 +272,15 @@ namespace WebApplication2.Controllers
                     PerformerName = t.TrackPerformers.Select(tp => tp.Performer.Name).FirstOrDefault() ?? "Unknown",
                     Length = t.Length
                 })
-                .ToList();
+                .ToListAsync();
+
+            viewModel.AvailablePerformers = await _context.Performer
+                 .Select(p => new PerformerViewModel
+                 {
+                     PerformerID = p.PerformerID,
+                     Name = p.Name
+                 })
+                 .ToListAsync();
 
             return View(viewModel);
         }
@@ -683,8 +719,7 @@ namespace WebApplication2.Controllers
         public IActionResult SearchPerformers(string searchTerm)
         {
             var performers = _context.Performer
-                .Where(p => string.IsNullOrEmpty(searchTerm) || 
-                           p.Name.Contains(searchTerm))
+                .Where(p => string.IsNullOrEmpty(searchTerm) || p.Name.Contains(searchTerm))
                 .Select(p => new PerformerViewModel
                 {
                     PerformerID = p.PerformerID,
@@ -692,7 +727,7 @@ namespace WebApplication2.Controllers
                 })
                 .ToList();
 
-            return PartialView("_PerformerList", performers);
+            return PartialView("_PerformerListPartial", performers);
         }
     }
 }
