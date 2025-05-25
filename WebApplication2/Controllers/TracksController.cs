@@ -23,9 +23,19 @@ namespace WebApplication2.Controllers
 
         // GET: Tracks
         [Authorize(Roles = "Editor,Admin")]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchString)
         {
-            var tracks = await _context.Track
+            ViewData["CurrentFilter"] = searchString;
+
+            var tracks = from t in _context.Track
+                         select t;
+
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                tracks = tracks.Where(s => s.Title.Contains(searchString) || s.Lyrics.Contains(searchString));
+            }
+
+            var trackList = await tracks
                 .Include(t => t.Language)
                 .Include(t => t.Scale)
                 .Include(t => t.MainGuest)
@@ -33,7 +43,7 @@ namespace WebApplication2.Controllers
                 .AsNoTracking()
                 .ToListAsync();
 
-            return View(tracks);
+            return View(trackList);
         }
 
         // GET: Tracks/Details/5

@@ -64,6 +64,32 @@ namespace WebApplication2.Controllers
                 return NotFound();
             }
 
+            // Calculate total release length
+            TimeSpan totalLength = TimeSpan.Zero;
+            if (release.ReleaseTracks != null)
+            {
+                foreach (var releaseTrack in release.ReleaseTracks)
+                {
+                    if (releaseTrack.Track?.Length.HasValue == true)
+                    {
+                        totalLength = totalLength.Add(releaseTrack.Track.Length.Value);
+                    }
+                }
+            }
+
+            // Format total release length to include hours if necessary
+            string formattedTotalLength;
+            if (totalLength.TotalHours >= 1)
+            {
+                formattedTotalLength = ((int)totalLength.TotalHours).ToString() + ":" + totalLength.ToString(@"mm\:ss");
+            }
+            else
+            {
+                formattedTotalLength = totalLength.ToString(@"mm\:ss");
+            }
+
+            ViewData["TotalReleaseLength"] = formattedTotalLength;
+
             return View(release);
         }
 
@@ -156,6 +182,20 @@ namespace WebApplication2.Controllers
                 }).ToList();
 
             ViewBag.Genres = new SelectList(genres, "GenreID", "GenreName");
+
+            // Get the ReleaseTypeID for "Single"
+            // var singleReleaseType = await _context.ReleaseType.FirstOrDefaultAsync(rt => rt.ReleaseTypeName == "Single");
+            // int? singleReleaseTypeID = singleReleaseType?.ReleaseTypeID;
+
+            // Check if the selected release type is "Single" and if more than one track is selected
+            if (viewModel.ReleaseTypeID == 1 && !string.IsNullOrEmpty(viewModel.SelectedTrackIds))
+            {
+                var selectedTrackIds = viewModel.SelectedTrackIds.Split(',').ToList();
+                if (selectedTrackIds.Count > 1)
+                {
+                    ModelState.AddModelError("SelectedTrackIds", "Single releases can only have one track.");
+                }
+            }
 
             if (ModelState.IsValid)
             {
@@ -347,18 +387,8 @@ namespace WebApplication2.Controllers
                         PerformerName = rt.Track.TrackPerformers.Select(tp => tp.Performer.Name).FirstOrDefault() ?? "Unknown",
                         Length = rt.Track.Length
                     }).ToList(),
-                AvailableTracks = await _context.Track
-                    .Include(t => t.TrackPerformers)
-                        .ThenInclude(tp => tp.Performer)
-                    .Where(t => !release.ReleaseTracks.Select(rt => rt.TrackID).Contains(t.TrackID))
-                    .Select(t => new ReleaseCreateTrackViewModel
-                    {
-                        TrackID = t.TrackID,
-                        Title = t.Title,
-                        PerformerName = t.TrackPerformers.Select(tp => tp.Performer.Name).FirstOrDefault() ?? "Unknown",
-                        Length = t.Length
-                    })
-                    .ToListAsync(),
+                // AvailableTracks will be loaded via AJAX
+                AvailableTracks = new List<ReleaseCreateTrackViewModel>(),
 
                 // Add performer data
                 CurrentPerformers = release.ReleasePerformers
@@ -367,14 +397,8 @@ namespace WebApplication2.Controllers
                         PerformerID = rp.PerformerID,
                         Name = rp.Performer.Name
                     }).ToList(),
-                AvailablePerformers = await _context.Performer
-                    .Where(p => !release.ReleasePerformers.Select(rp => rp.PerformerID).Contains(p.PerformerID))
-                    .Select(p => new PerformerViewModel
-                    {
-                        PerformerID = p.PerformerID,
-                        Name = p.Name
-                    })
-                    .ToListAsync()
+                 // AvailablePerformers will be loaded via AJAX
+                AvailablePerformers = new List<PerformerViewModel>()
             };
 
             return View(viewModel);
