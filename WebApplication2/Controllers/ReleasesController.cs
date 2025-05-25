@@ -445,26 +445,21 @@ namespace WebApplication2.Controllers
                             .Select(id => int.Parse(id.Trim()))
                             .ToList();
 
-                        // Get current performer IDs
                         var currentPerformerIds = existingRelease.ReleasePerformers.Select(rp => rp.PerformerID).ToList();
 
-                        // Find performers to remove (in current but not in new selection)
                         var performersToRemove = existingRelease.ReleasePerformers
                             .Where(rp => !performerIds.Contains(rp.PerformerID))
                             .ToList();
 
-                        // Find performers to add (in new selection but not in current)
                         var performersToAdd = performerIds
                             .Where(id => !currentPerformerIds.Contains(id))
                             .ToList();
 
-                        // Remove performers that are no longer selected
                         if (performersToRemove.Any())
                         {
                             _context.ReleasePerformer.RemoveRange(performersToRemove);
                         }
 
-                        // Add new performers
                         if (performersToAdd.Any())
                         {
                             foreach (var performerId in performersToAdd)
@@ -479,7 +474,6 @@ namespace WebApplication2.Controllers
                     }
                     else
                     {
-                        // If no performers are selected, remove all existing performers
                         var performersToRemove = existingRelease.ReleasePerformers.ToList();
                         if (performersToRemove.Any())
                         {
@@ -487,59 +481,30 @@ namespace WebApplication2.Controllers
                         }
                     }
 
-                    // Update tracks
-                    var trackIds = !string.IsNullOrEmpty(viewModel.SelectedTrackIds) 
+                    // === FIXED TRACK UPDATE LOGIC ===
+                    var trackIds = !string.IsNullOrEmpty(viewModel.SelectedTrackIds)
                         ? viewModel.SelectedTrackIds.Split(',')
                             .Where(id => !string.IsNullOrWhiteSpace(id))
                             .Select(id => int.Parse(id.Trim()))
                             .ToList()
                         : new List<int>();
 
-                    // Get current track IDs
-                    var currentTrackIds = existingRelease.ReleaseTracks.Select(rt => rt.TrackID).ToList();
-
-                    // Find tracks to remove (in current but not in new selection)
-                    var tracksToRemove = existingRelease.ReleaseTracks
-                        .Where(rt => !trackIds.Contains(rt.TrackID))
-                        .ToList();
-
-                    // Find tracks to add (in new selection but not in current)
-                    var tracksToAdd = trackIds
-                        .Where(id => !currentTrackIds.Contains(id))
-                        .ToList();
-
-                    // Remove tracks that are no longer selected
-                    if (tracksToRemove.Any())
+                    // Remove all existing tracks
+                    var existingTracks = existingRelease.ReleaseTracks.ToList();
+                    if (existingTracks.Any())
                     {
-                        _context.ReleaseTrack.RemoveRange(tracksToRemove);
+                        _context.ReleaseTrack.RemoveRange(existingTracks);
                     }
 
-                    // Add new tracks
-                    if (tracksToAdd.Any())
+                    // Re-add all selected tracks in the correct order with proper TrackNumber
+                    for (int i = 0; i < trackIds.Count; i++)
                     {
-                        var maxTrackNumber = existingRelease.ReleaseTracks.Any() ? 
-                            existingRelease.ReleaseTracks.Max(rt => rt.TrackNumber) : 0;
-
-                        foreach (var trackId in tracksToAdd)
+                        _context.ReleaseTrack.Add(new ReleaseTrack
                         {
-                            _context.ReleaseTrack.Add(new ReleaseTrack
-                            {
-                                ReleaseID = existingRelease.ReleaseID,
-                                TrackID = trackId,
-                                TrackNumber = ++maxTrackNumber
-                            });
-                        }
-                    }
-
-                    // Update track numbers for all tracks
-                    var allTracks = await _context.ReleaseTrack
-                        .Where(rt => rt.ReleaseID == existingRelease.ReleaseID)
-                        .OrderBy(rt => rt.TrackNumber)
-                        .ToListAsync();
-
-                    for (int i = 0; i < allTracks.Count; i++)
-                    {
-                        allTracks[i].TrackNumber = i + 1;
+                            ReleaseID = existingRelease.ReleaseID,
+                            TrackID = trackIds[i],
+                            TrackNumber = i + 1
+                        });
                     }
 
                     _context.Update(existingRelease);
@@ -559,27 +524,9 @@ namespace WebApplication2.Controllers
                 }
             }
 
-            // If we got this far, something failed, redisplay form
-            var genres = _context.Genre
-                .Select(gn => new GenreViewModel
-                {
-                    GenreID = gn.GenreID,
-                    GenreName = gn.GenreName
-                }).ToList();
-
-            ViewBag.Genres = new SelectList(genres, "GenreID", "GenreName");
-
-            var releasetypes = _context.ReleaseType
-                .Select(gn => new ReleaseTypeViewModel
-                {
-                    ReleaseTypeID = gn.ReleaseTypeID,
-                    ReleaseTypeName = gn.ReleaseTypeName
-                }).ToList();
-
-            ViewBag.ReleaseTypes = new SelectList(releasetypes, "ReleaseTypeID", "ReleaseTypeName");
-
             return View(viewModel);
         }
+
 
         // GET: Releases/Delete/5
         [Authorize(Roles = "Editor,Admin")]
