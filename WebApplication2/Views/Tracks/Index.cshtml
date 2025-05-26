@@ -15,7 +15,7 @@
         <p>
             Find by title or lyrics: <input type="text" name="SearchString" value="@ViewData["CurrentFilter"]" />
             <input type="submit" value="Search" class="btn btn-default" /> |
-            <a asp-action="Index">Back to Full List</a>
+            @* <a asp-action="Index">Back to Full List</a> *@
         </p>
     </div>
 </form>
@@ -26,9 +26,9 @@
             <th>@Html.DisplayNameFor(model => model.Length)</th>
             <th>@Html.DisplayNameFor(model => model.IsSong)</th>
             <th>@Html.DisplayNameFor(model => model.Title)</th>
-            <th>@Html.DisplayNameFor(model => model.Lyrics)</th>
-            <th>Main Guest</th>
-            <th>Second Guest</th>
+@*             <th>@Html.DisplayNameFor(model => model.Lyrics)</th> *@
+@*             <th>Main Guest</th>
+            <th>Second Guest</th> *@
             <th>@Html.DisplayNameFor(model => model.Language)</th>
             <th>@Html.DisplayNameFor(model => model.Scale)</th>
             <th>Actions</th>
@@ -46,9 +46,9 @@
             <td>
                 @Html.DisplayFor(modelItem => item.Title)
             </td>
-            <td>
+@*             <td>
                 @Html.DisplayFor(modelItem => item.Lyrics)
-            </td>
+            </td> *@
             <td>
                 @(item.MainGuest?.Name ?? "-")
             </td>

@@ -38,9 +38,7 @@ namespace WebApplication2.Models
         public virtual ICollection<ReleasePerformer> ReleasePerformers { get; set; } = new List<ReleasePerformer>();
         public virtual ICollection<TrackPerformer> TrackPerformers { get; set; } = new List<TrackPerformer>();
         public virtual ICollection<TrackProducer> ProducedTracks { get; set; } = new List<TrackProducer>();
-/*        public virtual ICollection<Track> MainGuestTracks { get; set; } = new List<Track>();*/
 
-        // Helper property to get all releases
         [NotMapped]
         public IEnumerable<Release> Releases => ReleasePerformers.Select(rp => rp.Release);
     }
